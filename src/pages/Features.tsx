@@ -75,9 +75,15 @@ const FeatureSection = ({
                 <p className="text-sm">Interactive demo coming soon</p>
               </div>
             </div>
-            <button disabled className="mt-4 w-full h-12 rounded-xl font-semibold bg-muted text-muted-foreground cursor-not-allowed text-sm" title="Coming soon — backend integration in progress">
-              Try It → (Coming Soon)
-            </button>
+            {id === "label-auditor" ? (
+              <Link to="/label-auditor" className="mt-4 w-full h-12 rounded-xl font-semibold hero-gradient-bg text-primary-foreground btn-press flex items-center justify-center text-sm flex-shrink-0">
+                Try It →
+              </Link>
+            ) : (
+              <button disabled className="mt-4 w-full h-12 rounded-xl font-semibold bg-muted text-muted-foreground cursor-not-allowed text-sm" title="Coming soon — backend integration in progress">
+                Try It → (Coming Soon)
+              </button>
+            )}
           </ScrollReveal>
         </div>
       </div>

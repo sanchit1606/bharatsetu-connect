@@ -22,6 +22,8 @@ const ScrollToTop = () => {
   return null;
 };
 
+import LabelAuditor from "./pages/LabelAuditor";
+
 const AnimatedRoutes = () => {
   const location = useLocation();
   return (
@@ -38,6 +40,7 @@ const AnimatedRoutes = () => {
           <Route path="/features" element={<Features />} />
           <Route path="/docs" element={<Docs />} />
           <Route path="/contact" element={<Contact />} />
+          <Route path="/label-auditor" element={<LabelAuditor />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </motion.div>
