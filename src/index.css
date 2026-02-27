@@ -1,0 +1,206 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 35 30% 98%;
+    --foreground: 222 47% 11%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+
+    --primary: 32 95% 52%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 168 50% 92%;
+    --secondary-foreground: 168 76% 26%;
+
+    --muted: 35 20% 94%;
+    --muted-foreground: 222 15% 46%;
+
+    --accent: 168 76% 36%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 35 20% 90%;
+    --input: 35 20% 88%;
+    --ring: 32 95% 52%;
+
+    --radius: 0.75rem;
+
+    --hero-gradient: linear-gradient(135deg, hsl(32, 95%, 52%) 0%, hsl(16, 90%, 55%) 50%, hsl(168, 76%, 36%) 100%);
+    --card-shadow: 0 4px 24px -4px hsl(222 47% 11% / 0.08);
+    --card-shadow-hover: 0 12px 32px -8px hsl(222 47% 11% / 0.15);
+    --glass-bg: hsl(0 0% 100% / 0.8);
+    --glass-border: hsl(35 20% 90% / 0.6);
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 32 95% 52%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 35 20% 94%;
+    --sidebar-accent-foreground: 222 47% 11%;
+    --sidebar-border: 35 20% 90%;
+    --sidebar-ring: 32 95% 52%;
+  }
+
+  .dark {
+    --background: 222 47% 6%;
+    --foreground: 35 20% 95%;
+
+    --card: 222 40% 10%;
+    --card-foreground: 35 20% 95%;
+
+    --popover: 222 40% 10%;
+    --popover-foreground: 35 20% 95%;
+
+    --primary: 32 95% 55%;
+    --primary-foreground: 222 47% 6%;
+
+    --secondary: 168 40% 14%;
+    --secondary-foreground: 168 60% 70%;
+
+    --muted: 222 30% 14%;
+    --muted-foreground: 222 15% 60%;
+
+    --accent: 168 70% 42%;
+    --accent-foreground: 222 47% 6%;
+
+    --destructive: 0 62% 30%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 222 30% 16%;
+    --input: 222 30% 18%;
+    --ring: 32 95% 55%;
+
+    --hero-gradient: linear-gradient(135deg, hsl(32, 90%, 48%) 0%, hsl(16, 85%, 45%) 50%, hsl(168, 70%, 32%) 100%);
+    --card-shadow: 0 4px 24px -4px hsl(0 0% 0% / 0.3);
+    --card-shadow-hover: 0 12px 32px -8px hsl(0 0% 0% / 0.5);
+    --glass-bg: hsl(222 47% 8% / 0.85);
+    --glass-border: hsl(222 30% 20% / 0.6);
+
+    --sidebar-background: 222 47% 8%;
+    --sidebar-foreground: 35 20% 95%;
+    --sidebar-primary: 32 95% 55%;
+    --sidebar-primary-foreground: 222 47% 6%;
+    --sidebar-accent: 222 30% 14%;
+    --sidebar-accent-foreground: 35 20% 95%;
+    --sidebar-border: 222 30% 16%;
+    --sidebar-ring: 32 95% 55%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-background text-foreground font-body antialiased;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display;
+  }
+}
+
+@layer components {
+  .glass-header {
+    background: var(--glass-bg);
+    border-bottom: 1px solid var(--glass-border);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+  }
+
+  .hero-gradient-text {
+    background: var(--hero-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .hero-gradient-bg {
+    background: var(--hero-gradient);
+  }
+
+  .card-elevated {
+    box-shadow: var(--card-shadow);
+    transition: box-shadow 0.3s ease, transform 0.3s ease;
+  }
+
+  .card-elevated:hover {
+    box-shadow: var(--card-shadow-hover);
+    transform: translateY(-4px);
+  }
+
+  .btn-press {
+    transition: transform 0.15s ease;
+  }
+  .btn-press:hover {
+    transform: scale(1.03);
+  }
+  .btn-press:active {
+    transform: scale(0.98);
+  }
+
+  .section-padding {
+    @apply px-4 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-28;
+  }
+
+  .container-content {
+    @apply max-w-7xl mx-auto;
+  }
+}
+
+@layer utilities {
+  .animate-draw-line {
+    stroke-dasharray: 1000;
+    stroke-dashoffset: 1000;
+    animation: draw-line 1.5s ease-out forwards;
+  }
+
+  @keyframes draw-line {
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+  }
+
+  @keyframes pulse-glow {
+    0%, 100% { opacity: 0.4; }
+    50% { opacity: 0.8; }
+  }
+
+  .animate-float {
+    animation: float 3s ease-in-out infinite;
+  }
+
+  .animate-pulse-glow {
+    animation: pulse-glow 2s ease-in-out infinite;
+  }
+
+  @keyframes bounce-subtle {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
+  }
+
+  .animate-bounce-subtle {
+    animation: bounce-subtle 2s ease-in-out infinite;
+  }
+}
