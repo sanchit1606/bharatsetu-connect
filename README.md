@@ -111,25 +111,4 @@ src/
 
 ---
 
-## 🎨 Features
 
-- **Light & Dark Theme** — Full theme support with smooth toggle animation
-- **Mobile-First Design** — Optimized for 375px screens, scales to 1440px+
-- **Scroll Animations** — Intersection Observer-powered reveal effects
-- **Accessibility** — Semantic HTML, ARIA labels, keyboard navigation
-- **Smooth Page Transitions** — Framer Motion animated route changes
-- **Zero Data Philosophy** — Privacy-first architecture across all tools
-
----
-
-## 🤝 Contributing
-
-Contributions are welcome! Feel free to open issues or submit pull requests.
-
----
-
-## 📄 License
-
-© 2026 BharatSetu. All rights reserved.
-
-Made with ❤️ in India 🇮🇳
