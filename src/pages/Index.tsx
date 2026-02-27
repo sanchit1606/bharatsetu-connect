@@ -4,6 +4,7 @@ import { ChevronDown, Package, Scale, Building2, Heart, ScanSearch, Megaphone, S
 import ScrollReveal from "@/components/ScrollReveal";
 import StatCounter from "@/components/StatCounter";
 import WebGLShader from "@/components/WebGLShader";
+import Footer from "@/components/Footer";
 
 const TypewriterText = ({ text, delay = 0 }: { text: string; delay?: number }) => {
   const [displayed, setDisplayed] = useState("");
@@ -71,6 +72,18 @@ const techBlocks = [
 ];
 
 const Index = () => {
+  // Force dark theme on home page, restore user preference on unmount
+  useEffect(() => {
+    const savedTheme = localStorage.getItem("theme");
+    const wasDark = document.documentElement.classList.contains("dark");
+    document.documentElement.classList.add("dark");
+
+    return () => {
+      if (savedTheme === "light" || (!savedTheme && !wasDark)) {
+        document.documentElement.classList.remove("dark");
+      }
+    };
+  }, []);
   return (
     <div className="min-h-screen relative">
       {/* WebGL Shader Background — fixed behind everything */}
@@ -120,7 +133,7 @@ const Index = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 lg:gap-6">
               {problemCards.map((card, i) => (
                 <ScrollReveal key={card.title} delay={i * 100}>
-                  <div className="bg-background rounded-2xl p-6 lg:p-8 card-elevated h-full">
+                  <div className="bg-background/60 backdrop-blur-md rounded-2xl p-6 lg:p-8 card-elevated h-full border border-white/5">
                     <span className="text-3xl mb-4 block">{card.emoji}</span>
                     <h3 className="font-display font-bold text-lg text-foreground mb-2">{card.title}</h3>
                     <p className="text-sm text-muted-foreground leading-relaxed">{card.stat}</p>
@@ -141,7 +154,7 @@ const Index = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
               {features.map((f, i) => (
                 <ScrollReveal key={f.name} delay={i * 80}>
-                  <Link to={`/features#${f.anchor}`} className="block bg-card rounded-2xl p-6 lg:p-8 card-elevated h-full group">
+                  <Link to={`/features#${f.anchor}`} className="block bg-card/60 backdrop-blur-md rounded-2xl p-6 lg:p-8 card-elevated h-full group border border-white/5">
                     <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
                       <f.icon className="w-6 h-6 text-primary" />
                     </div>
@@ -200,7 +213,7 @@ const Index = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-6">
               {techBlocks.map((b, i) => (
                 <ScrollReveal key={b.title} delay={i * 100}>
-                  <div className="bg-card rounded-2xl p-6 lg:p-8 card-elevated h-full">
+                  <div className="bg-card/60 backdrop-blur-md rounded-2xl p-6 lg:p-8 card-elevated h-full border border-white/5">
                     <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center mb-4">
                       <b.icon className="w-5 h-5 text-accent" />
                     </div>
@@ -222,7 +235,7 @@ const Index = () => {
             <div className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-none -mx-4 px-4">
               {personas.map((p, i) => (
                 <ScrollReveal key={p.name} delay={i * 80} className="min-w-[280px] sm:min-w-[320px] snap-center">
-                  <div className="bg-background rounded-2xl p-6 card-elevated h-full">
+                  <div className="bg-background/60 backdrop-blur-md rounded-2xl p-6 card-elevated h-full border border-white/5">
                     <span className="text-3xl block mb-3">{p.emoji}</span>
                     <p className="text-sm text-muted-foreground leading-relaxed italic mb-3">"{p.quote}"</p>
                     <p className="text-xs font-semibold text-foreground">{p.name}</p>
@@ -254,6 +267,7 @@ const Index = () => {
           </div>
         </section>
 
+        <Footer />
       </div>{/* end content wrapper */}
     </div>
   );
