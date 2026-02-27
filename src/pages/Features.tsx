@@ -123,8 +123,8 @@ const Features = () => {
 
       {/* Sticky Tab Bar */}
       <div className="sticky top-16 z-40 glass-header border-b border-border">
-        <div className="container-content px-4 sm:px-6 lg:px-8">
-          <div className="flex gap-1 overflow-x-auto py-2 scrollbar-none snap-x">
+        <div className="container-content px-4 sm:px-6 lg:px-8 flex justify-center">
+          <div className="flex gap-1 overflow-x-auto py-2 scrollbar-none snap-x max-w-full">
             {featureTabs.map((t) => (
               <a
                 key={t.id}
