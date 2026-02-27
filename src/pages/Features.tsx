@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { useLocation, Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { ScanSearch, Megaphone, ShieldCheck, Microscope, Flower2, ArrowRight, Lock, CheckCircle2, AlertTriangle } from "lucide-react";
 import ScrollReveal from "@/components/ScrollReveal";
 
@@ -8,7 +9,7 @@ const featureTabs = [
   { id: "civicsense", label: "CivicSense", icon: Megaphone },
   { id: "rights-assistant", label: "Rights Assistant", icon: ShieldCheck },
   { id: "lab-analyzer", label: "Lab Report Analyzer", icon: Microscope },
-  { id: "gynaecare", label: "GynaeCare", icon: Flower2 },
+  { id: "gynaecare", labelKey: "tab_gynae", icon: Flower2 },
 ];
 
 const FeatureSection = ({
@@ -101,6 +102,7 @@ const comparisonData = [
 
 const Features = () => {
   const location = useLocation();
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (location.hash) {
@@ -118,10 +120,10 @@ const Features = () => {
         <div className="container-content text-center">
           <ScrollReveal>
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-display font-bold text-foreground mb-4">
-              Everything BharatSetu <span className="hero-gradient-text">Can Do For You</span>
+              {t("features_page.hero_headline").replace("Can Do For You", "")} <span className="hero-gradient-text">Can Do For You</span>
             </h1>
             <p className="text-muted-foreground max-w-2xl mx-auto text-sm sm:text-base">
-              Five AI-powered tools built around the real challenges of Indian life. Each one free, multilingual, and private by design.
+              {t("features_page.hero_subtext")}
             </p>
           </ScrollReveal>
         </div>
@@ -131,14 +133,14 @@ const Features = () => {
       <div className="sticky top-16 z-40 glass-header border-b border-border">
         <div className="container-content px-4 sm:px-6 lg:px-8 flex justify-center">
           <div className="flex gap-1 overflow-x-auto py-2 scrollbar-none snap-x max-w-full">
-            {featureTabs.map((t) => (
+            {featureTabs.map((t_item) => (
               <a
-                key={t.id}
-                href={`#${t.id}`}
+                key={t_item.id}
+                href={`#${t_item.id}`}
                 className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-muted-foreground hover:text-primary hover:bg-primary/5 transition-colors whitespace-nowrap snap-center btn-press"
               >
-                <t.icon className="w-4 h-4" />
-                {t.label}
+                <t_item.icon className="w-4 h-4" />
+                {t_item.labelKey ? t(`features_page.${t_item.labelKey}`) : t_item.id}
               </a>
             ))}
           </div>
@@ -262,7 +264,7 @@ const Features = () => {
       <section className="section-padding bg-card">
         <div className="container-content">
           <ScrollReveal className="text-center mb-10">
-            <h2 className="text-3xl sm:text-4xl font-display font-bold text-foreground">All Features <span className="hero-gradient-text">at a Glance</span></h2>
+            <h2 className="text-3xl sm:text-4xl font-display font-bold text-foreground">{t("features_page.comparison_title")}</h2>
           </ScrollReveal>
           <ScrollReveal>
             <div className="overflow-x-auto rounded-2xl border border-border">
@@ -270,11 +272,11 @@ const Features = () => {
                 <thead>
                   <tr className="bg-muted">
                     <th className="text-left px-4 py-3 font-display font-semibold text-foreground">Feature</th>
-                    <th className="text-left px-4 py-3 font-display font-semibold text-foreground">Input</th>
-                    <th className="text-left px-4 py-3 font-display font-semibold text-foreground">Languages</th>
-                    <th className="text-left px-4 py-3 font-display font-semibold text-foreground">Data Stored</th>
-                    <th className="text-left px-4 py-3 font-display font-semibold text-foreground">Output</th>
-                    <th className="text-left px-4 py-3 font-display font-semibold text-foreground">For</th>
+                    <th className="text-left px-4 py-3 font-display font-semibold text-foreground">{t("features_page.col_input")}</th>
+                    <th className="text-left px-4 py-3 font-display font-semibold text-foreground">{t("features_page.col_languages")}</th>
+                    <th className="text-left px-4 py-3 font-display font-semibold text-foreground">{t("features_page.col_data")}</th>
+                    <th className="text-left px-4 py-3 font-display font-semibold text-foreground">{t("features_page.col_output")}</th>
+                    <th className="text-left px-4 py-3 font-display font-semibold text-foreground">{t("features_page.col_for")}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -299,9 +301,9 @@ const Features = () => {
       <section className="section-padding">
         <div className="container-content text-center">
           <ScrollReveal>
-            <p className="text-muted-foreground mb-4">Have questions? Want to collaborate?</p>
+            <p className="text-muted-foreground mb-4">{t("features_page.footer_cta_text")}</p>
             <Link to="/contact" className="inline-flex h-12 px-8 items-center rounded-xl font-semibold hero-gradient-bg text-primary-foreground btn-press text-sm gap-2">
-              Contact Us <ArrowRight className="w-4 h-4" />
+              {t("features_page.footer_cta_button").replace(" →", "")} <ArrowRight className="w-4 h-4" />
             </Link>
           </ScrollReveal>
         </div>

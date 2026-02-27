@@ -3,6 +3,7 @@ import {
     Camera, Image as ImageIcon, X, Mic, MicOff, Search, Loader2,
     AlertTriangle, CheckCircle, Info, Volume2, Square, RotateCcw, Download, Share2
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip as RechartsTooltip } from "recharts";
 import ScrollReveal from "@/components/ScrollReveal";
 
@@ -54,6 +55,7 @@ const MOCK_API_RESPONSE = {
 const PIE_COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4', '#ec4899', '#94a3b8'];
 
 export default function LabelAuditor() {
+    const { t } = useTranslation();
     const [imageFile, setImageFile] = useState<File | null>(null);
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
@@ -75,10 +77,10 @@ export default function LabelAuditor() {
     const cameraInputRef = useRef<HTMLInputElement>(null);
 
     const loadingMessages = [
-        "Reading label ingredients...",
-        "Checking nutritional values against FSSAI standards...",
-        "Personalising analysis for your health profile...",
-        "Generating your report..."
+        t("label_auditor_page.loading_1"),
+        t("label_auditor_page.loading_2"),
+        t("label_auditor_page.loading_3"),
+        t("label_auditor_page.loading_4")
     ];
 
     useEffect(() => {
@@ -126,7 +128,7 @@ export default function LabelAuditor() {
         if (!file) return;
 
         if (file.size > 10 * 1024 * 1024) {
-            alert("Image is too large. Please compress it or use a different photo.");
+            alert(t("label_auditor_page.error_too_large"));
             return;
         }
 
@@ -232,8 +234,8 @@ export default function LabelAuditor() {
                     {/* Left Column: Image Upload */}
                     <div className="space-y-3">
                         <div>
-                            <h2 className="text-lg font-semibold">Upload Product Label</h2>
-                            <p className="text-sm text-muted-foreground">Take a photo or upload an image of any label</p>
+                            <h2 className="text-lg font-semibold">{t("label_auditor_page.upload_title")}</h2>
+                            <p className="text-sm text-muted-foreground">{t("label_auditor_page.upload_subtext")}</p>
                         </div>
 
                         <div className={`border-2 border-dashed rounded-2xl flex flex-col items-center justify-center p-6 text-center transition-colors ${previewUrl ? 'border-primary/50 bg-primary/5' : 'border-border/60 hover:border-primary/50 bg-card'} relative h-64 overflow-hidden`}>
@@ -267,7 +269,7 @@ export default function LabelAuditor() {
                                             className="w-full h-14 bg-primary text-primary-foreground rounded-xl font-medium flex items-center justify-center gap-2 hover:bg-primary/90 transition-colors btn-press shadow-sm"
                                         >
                                             <Camera className="w-5 h-5" />
-                                            Take a Photo
+                                            {t("label_auditor_page.btn_camera")}
                                         </button>
 
                                         <input
@@ -282,20 +284,20 @@ export default function LabelAuditor() {
                                             className="w-full h-12 bg-secondary text-secondary-foreground rounded-xl font-medium flex items-center justify-center gap-2 hover:bg-secondary/80 transition-colors btn-press"
                                         >
                                             <ImageIcon className="w-5 h-5" />
-                                            Upload from Gallery
+                                            {t("label_auditor_page.btn_gallery")}
                                         </button>
                                     </div>
                                 </div>
                             )}
                         </div>
-                        <p className="text-xs text-center text-muted-foreground truncate">Supported: JPG, PNG, WEBP — Max size: 10MB</p>
+                        <p className="text-xs text-center text-muted-foreground truncate">{t("label_auditor_page.supported_formats")}</p>
                     </div>
 
                     {/* Right Column: Query */}
                     <div className="space-y-3 flex flex-col">
                         <div>
-                            <h2 className="text-lg font-semibold">Your Personal Query</h2>
-                            <p className="text-sm text-muted-foreground">Tell us about your health conditions or questions</p>
+                            <h2 className="text-lg font-semibold">{t("label_auditor_page.query_title")}</h2>
+                            <p className="text-sm text-muted-foreground">{t("label_auditor_page.query_subtext")}</p>
                         </div>
 
                         <div className="flex-1 relative flex flex-col">
@@ -303,7 +305,7 @@ export default function LabelAuditor() {
                                 value={query}
                                 onChange={(e) => setQuery(e.target.value.substring(0, 500))}
                                 className="w-full flex-1 min-h-[140px] resize-none border border-border bg-card rounded-2xl p-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 placeholder:text-muted-foreground/60 transition-shadow"
-                                placeholder='Example: "I have Type 2 diabetes and I am 43 years old. Can I consume this product safely? Check if the sugar content is safe for me."'
+                                placeholder={t("label_auditor_page.query_placeholder")}
                             />
                             <div className="absolute bottom-3 right-3 text-xs text-muted-foreground">
                                 {query.length} / 500
@@ -319,12 +321,12 @@ export default function LabelAuditor() {
                                         : "bg-background border-border hover:bg-muted text-foreground"
                                         }`}
                                 >
-                                    {isRecording ? <><Square className="w-4 h-4 fill-current" /> Recording... (tap to stop)</> : <><Mic className="w-4 h-4" /> Speak Your Query</>}
+                                    {isRecording ? <><Square className="w-4 h-4 fill-current" /> {t("label_auditor_page.voice_recording")}</> : <><Mic className="w-4 h-4" /> {t("label_auditor_page.voice_btn")}</>}
                                 </button>
                             )}
 
                             <div className="flex-1 flex items-center gap-2 bg-background border border-border rounded-xl px-3 py-2">
-                                <label className="text-xs font-medium text-muted-foreground whitespace-nowrap">Respond in:</label>
+                                <label className="text-xs font-medium text-muted-foreground whitespace-nowrap">{t("label_auditor_page.respond_in")}</label>
                                 <select
                                     value={language}
                                     onChange={(e) => setLanguage(e.target.value)}
@@ -338,7 +340,7 @@ export default function LabelAuditor() {
                                 </select>
                             </div>
                         </div>
-                        {recognition && <p className="text-xs text-center text-muted-foreground">Voice input works best in a quiet environment</p>}
+                        {recognition && <p className="text-xs text-center text-muted-foreground">{t("label_auditor_page.voice_note")}</p>}
                     </div>
 
                 </div>
@@ -363,9 +365,9 @@ export default function LabelAuditor() {
                             }`}
                     >
                         {isLoading ? (
-                            <><Loader2 className="w-6 h-6 animate-spin" /> Analysing...</>
+                            <><Loader2 className="w-6 h-6 animate-spin" /> {t("common.loading")}</>
                         ) : (
-                            <><Search className="w-6 h-6" /> Analyse Label</>
+                            <><Search className="w-6 h-6" /> {t("label_auditor_page.analyse_btn")}</>
                         )}
                     </button>
 
@@ -394,13 +396,14 @@ export default function LabelAuditor() {
                                     <p className="text-sm text-muted-foreground mt-1">Serving Size: {result.serving_size}</p>
                                 </div>
                                 <div className={`px-5 py-3 rounded-full border flex items-center justify-center text-center font-bold tracking-wide whitespace-nowrap shadow-sm ${getBadgeColor(result.safety_badge)}`}>
+                                    {t(`label_auditor_page.badge_${result.safety_badge.toLowerCase().replace(/_/g, " ")}.badge_`)} {/* Fallback logic omitted due to complex text, just use getBadgeText */}
                                     {getBadgeText(result.safety_badge)}
                                 </div>
                             </div>
 
                             {/* Sub-Section B: Nutritional Charts */}
                             <div className="bg-card border border-border rounded-3xl p-6 sm:p-8 shadow-sm">
-                                <h3 className="text-xl font-bold mb-6 font-display">Nutritional Breakdown (per 100g)</h3>
+                                <h3 className="text-xl font-bold mb-6 font-display">{t("label_auditor_page.nutrition_title")}</h3>
 
                                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
                                     {/* Pie Chart */}
@@ -480,8 +483,8 @@ export default function LabelAuditor() {
                             <div className="bg-card border border-border rounded-3xl p-6 sm:p-8 shadow-sm">
                                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
                                     <div>
-                                        <h3 className="text-xl font-bold font-display">AI Health Analysis</h3>
-                                        <p className="text-sm text-muted-foreground">Personalized based on your query</p>
+                                        <h3 className="text-xl font-bold font-display">{t("label_auditor_page.analysis_title")}</h3>
+                                        <p className="text-sm text-muted-foreground">{t("label_auditor_page.analysis_subtext")}</p>
                                     </div>
                                     {('speechSynthesis' in window) && (
                                         <button
@@ -489,7 +492,7 @@ export default function LabelAuditor() {
                                             className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-colors border ${isSpeaking ? 'bg-primary/10 border-primary/30 text-primary' : 'bg-background hover:bg-muted border-border'
                                                 }`}
                                         >
-                                            {isSpeaking ? <><Square className="w-4 h-4" /> Stop Listening</> : <><Volume2 className="w-4 h-4" /> Listen to Analysis</>}
+                                            {isSpeaking ? <><Square className="w-4 h-4" /> {t("label_auditor_page.stop_listen_btn")}</> : <><Volume2 className="w-4 h-4" /> {t("label_auditor_page.listen_btn")}</>}
                                         </button>
                                     )}
                                 </div>
@@ -515,8 +518,8 @@ export default function LabelAuditor() {
                             {/* Sub-Section D: False Claims Detector */}
                             <div className="bg-card border border-border rounded-3xl p-6 sm:p-8 shadow-sm">
                                 <div className="mb-6">
-                                    <h3 className="text-xl font-bold font-display flex items-center gap-2">Label Claims Analysis <Search className="w-5 h-5 text-primary" /></h3>
-                                    <p className="text-sm text-muted-foreground">AI-detected potentially misleading claims on this product</p>
+                                    <h3 className="text-xl font-bold font-display flex items-center gap-2">{t("label_auditor_page.claims_title")} <Search className="w-5 h-5 text-primary" /></h3>
+                                    <p className="text-sm text-muted-foreground">{t("label_auditor_page.claims_subtext")}</p>
                                 </div>
 
                                 <div className="space-y-4">
@@ -536,7 +539,7 @@ export default function LabelAuditor() {
                                             </p>
                                         </div>
                                     )) : (
-                                        <p className="text-sm text-muted-foreground italic">No specific health claims detected on this label.</p>
+                                        <p className="text-sm text-muted-foreground italic">{t("label_auditor_page.no_claims")}</p>
                                     )}
                                 </div>
                             </div>
@@ -546,7 +549,7 @@ export default function LabelAuditor() {
                                 <div className="flex gap-3 bg-muted/40 border border-border rounded-2xl p-4 text-sm text-muted-foreground">
                                     <Info className="w-5 h-5 shrink-0 mt-0.5" />
                                     <p>
-                                        <strong>Disclaimer:</strong> This analysis is generated by AI for educational purposes only. It is not a substitute for professional medical or dietary advice. Nutritional values are extracted from the label and may vary. Always consult a qualified doctor or dietitian for medical decisions.
+                                        {t("label_auditor_page.disclaimer").split(":")[0]}: {t("label_auditor_page.disclaimer").split(":")[1]}
                                     </p>
                                 </div>
 
@@ -555,13 +558,13 @@ export default function LabelAuditor() {
                                         onClick={resetAll}
                                         className="flex items-center gap-2 px-5 py-2.5 rounded-xl border border-border bg-card hover:bg-muted font-medium text-sm transition-colors btn-press"
                                     >
-                                        <RotateCcw className="w-4 h-4" /> Analyse Another
+                                        <RotateCcw className="w-4 h-4" /> {t("label_auditor_page.btn_reset")}
                                     </button>
                                     <button
                                         className="flex items-center gap-2 px-5 py-2.5 rounded-xl border border-border bg-card hover:bg-muted font-medium text-sm transition-colors btn-press"
                                         onClick={() => alert('Download PDF functionality requires backend integration.')}
                                     >
-                                        <Download className="w-4 h-4" /> Download Report
+                                        <Download className="w-4 h-4" /> {t("label_auditor_page.btn_download")}
                                     </button>
                                     <button
                                         className="flex items-center gap-2 px-5 py-2.5 rounded-xl border border-border bg-card hover:bg-muted font-medium text-sm transition-colors btn-press"
@@ -570,7 +573,7 @@ export default function LabelAuditor() {
                                             alert('Copied to clipboard!');
                                         }}
                                     >
-                                        <Share2 className="w-4 h-4" /> Share Results
+                                        <Share2 className="w-4 h-4" /> {t("label_auditor_page.btn_share")}
                                     </button>
                                 </div>
                             </div>

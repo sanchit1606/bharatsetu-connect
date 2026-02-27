@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Send, CheckCircle2, Handshake, School, Landmark, Newspaper, Bug, ChevronDown } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import ScrollReveal from "@/components/ScrollReveal";
 
 const subjectOptions = ["General Inquiry", "Collaboration", "Report a Bug", "Press & Media", "Other"];
@@ -21,6 +22,7 @@ const faqs = [
 ];
 
 const Contact = () => {
+  const { t } = useTranslation();
   const [form, setForm] = useState({ name: "", email: "", org: "", subject: "General Inquiry", message: "" });
   const [submitted, setSubmitted] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
@@ -36,8 +38,8 @@ const Contact = () => {
       <section className="section-padding pb-8">
         <div className="container-content text-center">
           <ScrollReveal>
-            <h1 className="text-4xl sm:text-5xl font-display font-bold text-foreground mb-4">Get In <span className="hero-gradient-text">Touch</span></h1>
-            <p className="text-muted-foreground max-w-lg mx-auto">Whether you're a student, researcher, NGO, or government body — we'd love to connect.</p>
+            <h1 className="text-4xl sm:text-5xl font-display font-bold text-foreground mb-4">{t("contact_page.hero_headline").split(" ")[0]} <span className="hero-gradient-text">{t("contact_page.hero_headline").split(" ").slice(1).join(" ")}</span></h1>
+            <p className="text-muted-foreground max-w-lg mx-auto">{t("contact_page.hero_subtext")}</p>
           </ScrollReveal>
         </div>
       </section>
@@ -51,40 +53,44 @@ const Contact = () => {
               {submitted ? (
                 <div className="bg-card rounded-2xl p-8 card-elevated text-center">
                   <CheckCircle2 className="w-12 h-12 text-accent mx-auto mb-4" />
-                  <h3 className="font-display font-bold text-xl text-foreground mb-2">Message sent!</h3>
-                  <p className="text-muted-foreground text-sm">We'll be in touch soon.</p>
+                  <h3 className="font-display font-bold text-xl text-foreground mb-2">{t("contact_page.form_success").split("!")[0]}!</h3>
+                  <p className="text-muted-foreground text-sm">{t("contact_page.form_success").split("! ")[1]}</p>
                 </div>
               ) : (
                 <form onSubmit={handleSubmit} className="bg-card rounded-2xl p-6 lg:p-8 card-elevated space-y-4">
                   <div>
-                    <label className="text-sm font-medium text-foreground mb-1.5 block">Full Name</label>
+                    <label className="text-sm font-medium text-foreground mb-1.5 block">{t("contact_page.form_name")}</label>
                     <input required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })}
                       className="w-full h-11 px-4 rounded-xl bg-background border border-border text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 transition-shadow" />
                   </div>
                   <div>
-                    <label className="text-sm font-medium text-foreground mb-1.5 block">Email Address</label>
+                    <label className="text-sm font-medium text-foreground mb-1.5 block">{t("contact_page.form_email")}</label>
                     <input required type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })}
                       className="w-full h-11 px-4 rounded-xl bg-background border border-border text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 transition-shadow" />
                   </div>
                   <div>
-                    <label className="text-sm font-medium text-foreground mb-1.5 block">Organization / College <span className="text-muted-foreground">(optional)</span></label>
+                    <label className="text-sm font-medium text-foreground mb-1.5 block">{t("contact_page.form_org").split(" (")[0]} <span className="text-muted-foreground">({t("contact_page.form_org").split("(")[1]}</span></label>
                     <input value={form.org} onChange={(e) => setForm({ ...form, org: e.target.value })}
                       className="w-full h-11 px-4 rounded-xl bg-background border border-border text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 transition-shadow" />
                   </div>
                   <div>
-                    <label className="text-sm font-medium text-foreground mb-1.5 block">Subject</label>
+                    <label className="text-sm font-medium text-foreground mb-1.5 block">{t("contact_page.form_subject")}</label>
                     <select value={form.subject} onChange={(e) => setForm({ ...form, subject: e.target.value })}
                       className="w-full h-11 px-4 rounded-xl bg-background border border-border text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 transition-shadow appearance-none">
-                      {subjectOptions.map((o) => <option key={o} value={o}>{o}</option>)}
+                      <option value="General Inquiry">{t("contact_page.subject_general")}</option>
+                      <option value="Collaboration">{t("contact_page.subject_collab")}</option>
+                      <option value="Report a Bug">{t("contact_page.subject_bug")}</option>
+                      <option value="Press & Media">{t("contact_page.subject_press")}</option>
+                      <option value="Other">{t("contact_page.subject_other")}</option>
                     </select>
                   </div>
                   <div>
-                    <label className="text-sm font-medium text-foreground mb-1.5 block">Message</label>
+                    <label className="text-sm font-medium text-foreground mb-1.5 block">{t("contact_page.form_message")}</label>
                     <textarea required rows={4} value={form.message} onChange={(e) => setForm({ ...form, message: e.target.value })}
                       className="w-full px-4 py-3 rounded-xl bg-background border border-border text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 transition-shadow resize-none" />
                   </div>
                   <button type="submit" className="w-full h-12 rounded-xl font-semibold hero-gradient-bg text-primary-foreground btn-press text-sm inline-flex items-center justify-center gap-2">
-                    <Send className="w-4 h-4" /> Send Message
+                    <Send className="w-4 h-4" /> {t("contact_page.form_submit")}
                   </button>
                 </form>
               )}
@@ -125,21 +131,21 @@ const Contact = () => {
       <section className="section-padding bg-card">
         <div className="container-content max-w-3xl">
           <ScrollReveal className="text-center mb-10">
-            <h2 className="text-3xl sm:text-4xl font-display font-bold text-foreground">Frequently Asked <span className="hero-gradient-text">Questions</span></h2>
+            <h2 className="text-3xl sm:text-4xl font-display font-bold text-foreground">{t("contact_page.faq_title").split(" ")[0]} {t("contact_page.faq_title").split(" ")[1]} <span className="hero-gradient-text">{t("contact_page.faq_title").split(" ").slice(2).join(" ")}</span></h2>
           </ScrollReveal>
           <div className="space-y-3">
-            {faqs.map((faq, i) => (
-              <ScrollReveal key={i} delay={i * 60}>
+            {[1, 2, 3, 4, 5].map((num) => (
+              <ScrollReveal key={num} delay={num * 60}>
                 <div className="bg-background rounded-xl border border-border overflow-hidden">
                   <button
-                    onClick={() => setOpenFaq(openFaq === i ? null : i)}
+                    onClick={() => setOpenFaq(openFaq === num ? null : num)}
                     className="w-full flex items-center justify-between px-5 py-4 text-left btn-press"
                   >
-                    <span className="text-sm font-semibold text-foreground pr-4">{faq.q}</span>
-                    <ChevronDown className={`w-4 h-4 text-muted-foreground shrink-0 transition-transform duration-300 ${openFaq === i ? "rotate-180" : ""}`} />
+                    <span className="text-sm font-semibold text-foreground pr-4">{t(`contact_page.faq_${num}_q`)}</span>
+                    <ChevronDown className={`w-4 h-4 text-muted-foreground shrink-0 transition-transform duration-300 ${openFaq === num ? "rotate-180" : ""}`} />
                   </button>
-                  <div className={`overflow-hidden transition-all duration-300 ${openFaq === i ? "max-h-40 opacity-100" : "max-h-0 opacity-0"}`}>
-                    <p className="px-5 pb-4 text-sm text-muted-foreground leading-relaxed">{faq.a}</p>
+                  <div className={`overflow-hidden transition-all duration-300 ${openFaq === num ? "max-h-40 opacity-100" : "max-h-0 opacity-0"}`}>
+                    <p className="px-5 pb-4 text-sm text-muted-foreground leading-relaxed">{t(`contact_page.faq_${num}_a`)}</p>
                   </div>
                 </div>
               </ScrollReveal>

@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import ThemeToggle from "./ThemeToggle";
+import LanguageSelector from "./LanguageSelector";
 
 const navLinks = [
   { label: "Home", to: "/" },
@@ -63,6 +64,7 @@ const Header = () => {
 
         {/* Right */}
         <div className="flex items-center gap-2">
+          <LanguageSelector />
           {location.pathname !== "/" && <ThemeToggle />}
           <Link
             to="/features"

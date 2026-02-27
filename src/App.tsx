@@ -10,7 +10,7 @@ import Features from "./pages/Features";
 import Docs from "./pages/Docs";
 import Contact from "./pages/Contact";
 import NotFound from "./pages/NotFound";
-import { useEffect } from "react";
+import { Suspense, useEffect } from "react";
 
 const queryClient = new QueryClient();
 
@@ -53,11 +53,13 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <BrowserRouter>
-        <ScrollToTop />
-        <Header />
-        <AnimatedRoutes />
-      </BrowserRouter>
+      <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-background"><div className="w-8 h-8 rounded-full border-4 border-primary border-t-transparent animate-spin"></div></div>}>
+        <BrowserRouter>
+          <ScrollToTop />
+          <Header />
+          <AnimatedRoutes />
+        </BrowserRouter>
+      </Suspense>
     </TooltipProvider>
   </QueryClientProvider>
 );

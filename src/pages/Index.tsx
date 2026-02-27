@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { ChevronDown, Package, Scale, Building2, Heart, ScanSearch, Megaphone, ShieldCheck, Microscope, Flower2, Lock, Globe, Smartphone, Zap, ArrowRight } from "lucide-react";
 import ScrollReveal from "@/components/ScrollReveal";
 import StatCounter from "@/components/StatCounter";
@@ -66,12 +67,13 @@ const personas = [
 ];
 
 const techBlocks = [
-  { title: "Privacy First", desc: "Sensitive features like Lab Report Analyzer and GynaeCare store zero personal data. All processing happens in-memory and is deleted the moment your session ends.", icon: Lock },
-  { title: "AMD-Powered Scale", desc: "Backend inference runs on AMD Developer Cloud with ROCm-optimized open-source LLMs, enabling fast, affordable responses for millions of users.", icon: Zap },
-  { title: "Open Source Core", desc: "Built on LLaMA, ChromaDB, FastAPI, and other open-source tools. Transparent, auditable, and community-driven.", icon: Globe },
+  { titleKey: "privacy_title", descKey: "privacy_desc", icon: Lock },
+  { titleKey: "amd_title", descKey: "amd_desc", icon: Zap },
+  { titleKey: "opensource_title", descKey: "opensource_desc", icon: Globe },
 ];
 
 const Index = () => {
+  const { t } = useTranslation();
   // Force dark theme on home page, restore user preference on unmount
   useEffect(() => {
     const savedTheme = localStorage.getItem("theme");
@@ -96,26 +98,26 @@ const Index = () => {
         <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
           <div className="container-content px-4 sm:px-6 lg:px-8 text-center relative z-10 pt-20">
             <h1 className="text-4xl sm:text-5xl lg:text-7xl font-display font-bold text-foreground leading-tight mb-4">
-              <TypewriterText text="Your Rights. Your Health. Your Voice." />
+              <TypewriterText text={t("hero.headline")} />
             </h1>
             <p className="text-lg sm:text-xl lg:text-2xl text-primary font-medium mt-4 opacity-0 animate-fade-up" style={{ animationDelay: "1.8s", animationFillMode: "forwards" }}>
-              Now powered by AI. Finally accessible to all.
+              {t("hero.subline")}
             </p>
             <p className="max-w-2xl mx-auto text-muted-foreground mt-6 text-sm sm:text-base leading-relaxed opacity-0 animate-fade-up" style={{ animationDelay: "2s", animationFillMode: "forwards" }}>
-              BharatSetu is a free, multilingual AI platform that helps every Indian citizen understand their health reports, know their legal rights, report civic issues, and access the information that was always meant for them.
+              {t("hero.subtext")}
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mt-8 opacity-0 animate-fade-up" style={{ animationDelay: "2.2s", animationFillMode: "forwards" }}>
               <Link to="/features" className="h-12 px-8 inline-flex items-center rounded-xl font-semibold hero-gradient-bg text-primary-foreground btn-press text-sm gap-2">
-                Explore Features <ArrowRight className="w-4 h-4" />
+                {t("hero.cta_primary")} <ArrowRight className="w-4 h-4" />
               </Link>
               <a href="#how-it-works" className="h-12 px-8 inline-flex items-center rounded-xl font-semibold border border-border text-foreground hover:bg-muted btn-press text-sm">
-                How It Works
+                {t("hero.cta_secondary")}
               </a>
             </div>
             <div className="grid grid-cols-3 gap-6 sm:gap-10 max-w-lg mx-auto mt-14 opacity-0 animate-fade-up" style={{ animationDelay: "2.5s", animationFillMode: "forwards" }}>
-              <StatCounter end={5} label="AI-Powered Tools" />
-              <StatCounter end={10} suffix="+" label="Indian Languages" />
-              <StatCounter end={0} label="Data Stored or Sold" />
+              <StatCounter end={5} label={t("hero.stat_tools")} />
+              <StatCounter end={10} suffix="+" label={t("hero.stat_languages")} />
+              <StatCounter end={0} label={t("hero.stat_data")} />
             </div>
           </div>
           <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce-subtle text-muted-foreground">
@@ -127,16 +129,21 @@ const Index = () => {
         <section className="section-padding">
           <div className="container-content">
             <ScrollReveal className="text-center mb-12">
-              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-display font-bold text-foreground">Millions of Indians. <span className="hero-gradient-text">Avoidable Gaps.</span></h2>
-              <p className="mt-4 text-muted-foreground max-w-xl mx-auto">Not because the information doesn't exist. But because no one made it accessible.</p>
+              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-display font-bold text-foreground">{t("problems.section_title").split(".")[0]}. <span className="hero-gradient-text">{t("problems.section_title").split(".")[1]}.</span></h2>
+              <p className="mt-4 text-muted-foreground max-w-xl mx-auto">{t("problems.section_subtext")}</p>
             </ScrollReveal>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 lg:gap-6">
-              {problemCards.map((card, i) => (
-                <ScrollReveal key={card.title} delay={i * 100}>
+              {[
+                { icon: Package, emoji: "📦", titleKey: "label_blindness_title", statKey: "label_blindness_stat" },
+                { icon: Scale, emoji: "⚖️", titleKey: "legal_title", statKey: "legal_stat" },
+                { icon: Building2, emoji: "🏙️", titleKey: "civic_title", statKey: "civic_stat" },
+                { icon: Heart, emoji: "👩", titleKey: "womens_title", statKey: "womens_stat" }
+              ].map((card, i) => (
+                <ScrollReveal key={card.titleKey} delay={i * 100}>
                   <div className="bg-background/30 backdrop-blur-md rounded-2xl p-6 lg:p-8 card-elevated h-full border border-white/5">
                     <span className="text-3xl mb-4 block">{card.emoji}</span>
-                    <h3 className="font-display font-bold text-lg text-foreground mb-2">{card.title}</h3>
-                    <p className="text-sm text-muted-foreground leading-relaxed">{card.stat}</p>
+                    <h3 className="font-display font-bold text-lg text-foreground mb-2">{t(`problems.${card.titleKey}`)}</h3>
+                    <p className="text-sm text-muted-foreground leading-relaxed">{t(`problems.${card.statKey}`)}</p>
                   </div>
                 </ScrollReveal>
               ))}
@@ -148,21 +155,27 @@ const Index = () => {
         <section className="section-padding">
           <div className="container-content">
             <ScrollReveal className="text-center mb-12">
-              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-display font-bold text-foreground">Five Tools. <span className="hero-gradient-text">One Mission.</span></h2>
-              <p className="mt-4 text-muted-foreground max-w-xl mx-auto">Each feature is built around a real problem faced by real Indians every day.</p>
+              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-display font-bold text-foreground">{t("features_snapshot.section_title").split(".")[0]}. <span className="hero-gradient-text">{t("features_snapshot.section_title").split(".")[1]}.</span></h2>
+              <p className="mt-4 text-muted-foreground max-w-xl mx-auto">{t("features_snapshot.section_subtext")}</p>
             </ScrollReveal>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
-              {features.map((f, i) => (
-                <ScrollReveal key={f.name} delay={i * 80}>
+              {[
+                { icon: ScanSearch, anchor: "label-auditor", prefix: "f1" },
+                { icon: Megaphone, anchor: "civicsense", prefix: "f2" },
+                { icon: ShieldCheck, anchor: "rights-assistant", prefix: "f3" },
+                { icon: Microscope, anchor: "lab-analyzer", prefix: "f4" },
+                { icon: Flower2, anchor: "gynaecare", prefix: "f5" }
+              ].map((f, i) => (
+                <ScrollReveal key={f.anchor} delay={i * 80}>
                   <Link to={`/features#${f.anchor}`} className="block bg-card/30 backdrop-blur-md rounded-2xl p-6 lg:p-8 card-elevated h-full group border border-white/5 hover:bg-card/40 transition-colors">
                     <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
                       <f.icon className="w-6 h-6 text-primary" />
                     </div>
-                    <h3 className="font-display font-bold text-lg text-foreground mb-1">{f.name}</h3>
-                    <p className="text-sm font-medium text-primary mb-3">{f.tagline}</p>
-                    <p className="text-sm text-muted-foreground leading-relaxed mb-4">{f.description}</p>
+                    <h3 className="font-display font-bold text-lg text-foreground mb-1">{t(`features_snapshot.${f.prefix}_name`)}</h3>
+                    <p className="text-sm font-medium text-primary mb-3">{t(`features_snapshot.${f.prefix}_tagline`)}</p>
+                    <p className="text-sm text-muted-foreground leading-relaxed mb-4">{t(`features_snapshot.${f.prefix}_desc`)}</p>
                     <span className="text-sm font-semibold text-primary inline-flex items-center gap-1 group-hover:gap-2 transition-all">
-                      See How <ArrowRight className="w-3.5 h-3.5" />
+                      {t("features_snapshot.see_how")} <ArrowRight className="w-3.5 h-3.5" />
                     </span>
                   </Link>
                 </ScrollReveal>
@@ -175,27 +188,36 @@ const Index = () => {
         <section id="how-it-works" className="section-padding">
           <div className="container-content">
             <ScrollReveal className="text-center mb-14">
-              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-display font-bold text-foreground">Built for <span className="hero-gradient-text">Bharat.</span></h2>
-              <p className="mt-4 text-muted-foreground max-w-xl mx-auto">Every design decision — from voice input to zero data storage — was made with the average Indian citizen in mind.</p>
+              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-display font-bold text-foreground">{t("how_it_works.section_title").split(".")[0]}. <span className="hero-gradient-text">{t("how_it_works.section_title").split(".")[1]}.</span></h2>
+              <p className="mt-4 text-muted-foreground max-w-xl mx-auto">{t("how_it_works.section_subtext")}</p>
             </ScrollReveal>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12 relative">
               {/* Connector line (desktop) */}
               <div className="hidden md:block absolute top-12 left-[16%] right-[16%] h-0.5 bg-gradient-to-r from-primary via-accent to-primary opacity-20" />
-              {steps.map((step, i) => (
+              {[
+                { num: "01", prefix: "step1" },
+                { num: "02", prefix: "step2" },
+                { num: "03", prefix: "step3" }
+              ].map((step, i) => (
                 <ScrollReveal key={step.num} delay={i * 200} className="text-center relative">
                   <div className="w-16 h-16 rounded-2xl hero-gradient-bg flex items-center justify-center mx-auto mb-4 text-primary-foreground font-display font-bold text-lg">{step.num}</div>
-                  <h3 className="font-display font-bold text-lg text-foreground mb-2">{step.title}</h3>
-                  <p className="text-sm text-muted-foreground leading-relaxed">{step.desc}</p>
+                  <h3 className="font-display font-bold text-lg text-foreground mb-2">{t(`how_it_works.${step.prefix}_title`)}</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{t(`how_it_works.${step.prefix}_desc`)}</p>
                 </ScrollReveal>
               ))}
             </div>
             {/* Trust badges */}
             <ScrollReveal delay={400}>
               <div className="flex flex-wrap items-center justify-center gap-6 mt-14">
-                {trustBadges.map((b) => (
-                  <div key={b.label} className="flex items-center gap-2 text-sm text-muted-foreground">
+                {[
+                  { icon: Lock, titleKey: "trust_zero_data" },
+                  { icon: Globe, titleKey: "trust_languages" },
+                  { icon: Smartphone, titleKey: "trust_phone" },
+                  { icon: Zap, titleKey: "trust_free" }
+                ].map((b) => (
+                  <div key={b.titleKey} className="flex items-center gap-2 text-sm text-muted-foreground">
                     <b.icon className="w-4 h-4 text-primary" />
-                    <span>{b.label}</span>
+                    <span>{t(`how_it_works.${b.titleKey}`)}</span>
                   </div>
                 ))}
               </div>
@@ -208,17 +230,17 @@ const Index = () => {
           <div className="container-content">
             <ScrollReveal className="text-center mb-12">
               <h2 className="text-3xl sm:text-4xl lg:text-5xl font-display font-bold text-foreground">Open. Responsible. <span className="hero-gradient-text">Fast.</span></h2>
-              <p className="mt-4 text-muted-foreground max-w-xl mx-auto">BharatSetu is built on open-source AI, scalable on AMD Developer Cloud infrastructure, and designed to operate at zero cost to citizens.</p>
+              <p className="mt-4 text-muted-foreground max-w-xl mx-auto">{t("technology.section_subtext")}</p>
             </ScrollReveal>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-6">
               {techBlocks.map((b, i) => (
-                <ScrollReveal key={b.title} delay={i * 100}>
+                <ScrollReveal key={b.titleKey} delay={i * 100}>
                   <div className="bg-card/30 backdrop-blur-md rounded-2xl p-6 lg:p-8 card-elevated h-full border border-white/5">
                     <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center mb-4">
                       <b.icon className="w-5 h-5 text-accent" />
                     </div>
-                    <h3 className="font-display font-bold text-foreground mb-2">{b.title}</h3>
-                    <p className="text-sm text-muted-foreground leading-relaxed">{b.desc}</p>
+                    <h3 className="font-display font-bold text-foreground mb-2">{t(`technology.${b.titleKey}`)}</h3>
+                    <p className="text-sm text-muted-foreground leading-relaxed">{t(`technology.${b.descKey}`)}</p>
                   </div>
                 </ScrollReveal>
               ))}
@@ -232,11 +254,11 @@ const Index = () => {
           <div className="container-content relative z-10 text-center">
             <ScrollReveal>
               <h2 className="text-3xl sm:text-4xl lg:text-5xl font-display font-bold text-foreground mb-4">
-                The information was always yours.<br /><span className="hero-gradient-text">Now it's accessible.</span>
+                {t("final_cta.headline").split(".")[0]}.<br /><span className="hero-gradient-text">{t("final_cta.headline").split(".")[1]}.</span>
               </h2>
-              <p className="text-muted-foreground mb-8 max-w-lg mx-auto">Free. Private. Multilingual. Built for 1.4 billion Indians.</p>
+              <p className="text-muted-foreground mb-8 max-w-lg mx-auto">{t("final_cta.subtext")}</p>
               <Link to="/features" className="inline-flex h-12 px-8 items-center rounded-xl font-semibold hero-gradient-bg text-primary-foreground btn-press text-sm gap-2">
-                Get Started <ArrowRight className="w-4 h-4" />
+                {t("final_cta.button")}
               </Link>
             </ScrollReveal>
           </div>
