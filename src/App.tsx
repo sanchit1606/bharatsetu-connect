@@ -5,7 +5,6 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 import Index from "./pages/Index";
 import Features from "./pages/Features";
 import Docs from "./pages/Docs";
@@ -41,7 +40,6 @@ const AnimatedRoutes = () => {
           <Route path="/contact" element={<Contact />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
-        <Footer />
       </motion.div>
     </AnimatePresence>
   );
