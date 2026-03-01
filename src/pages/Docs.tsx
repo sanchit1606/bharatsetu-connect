@@ -28,6 +28,7 @@ const TOC: TocItem[] = [
         ],
       },
       { id: "1.2", title: "1.2 Design Principles" },
+      { id: "1.3", title: "1.3 User flow diagram" },
     ],
   },
   {
