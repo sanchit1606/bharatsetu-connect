@@ -177,7 +177,10 @@
         "faq_4_q": "Can I use BharatSetu on my mobile phone?",
         "faq_4_a": "Yes. BharatSetu is designed mobile-first and works on any Android or iOS smartphone with a browser and internet connection.",
         "faq_5_q": "Is the legal or health information accurate?",
-        "faq_5_a": "BharatSetu sources information from verified bodies — WHO, ICMR, NHS, IndiaCode, FSSAI — and always cites its sources. It is an educational tool and always recommends consulting a professional."
+        "faq_5_a": "BharatSetu sources information from verified bodies — WHO, ICMR, NHS, IndiaCode, FSSAI — and always cites its sources. It is an educational tool and always recommends consulting a professional.",
+        "email": "Email",
+        "github": "GitHub",
+        "linkedin": "LinkedIn"
     },
     "docs_page": {
         "headline": "Documentation",

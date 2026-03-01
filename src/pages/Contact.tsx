@@ -1,9 +1,7 @@
 import { useState } from "react";
-import { Send, CheckCircle2, Handshake, School, Landmark, Newspaper, Bug, ChevronDown } from "lucide-react";
+import { Mail, Github, Linkedin, Handshake, School, Landmark, Newspaper, Bug, ChevronDown } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import ScrollReveal from "@/components/ScrollReveal";
-
-const subjectOptions = ["General Inquiry", "Collaboration", "Report a Bug", "Press & Media", "Other"];
 
 const whoItems = [
   { icon: Handshake, text: "NGOs and social organizations interested in partnerships" },
@@ -23,14 +21,28 @@ const faqs = [
 
 const Contact = () => {
   const { t } = useTranslation();
-  const [form, setForm] = useState({ name: "", email: "", org: "", subject: "General Inquiry", message: "" });
-  const [submitted, setSubmitted] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setSubmitted(true);
-  };
+  const contactButtons = [
+    {
+      label: t("contact_page.email"),
+      icon: Mail,
+      href: "mailto:sanchitnipanikar@gmail.com",
+      color: "from-[#EA4335] to-[#C5221F]" // Google Red
+    },
+    {
+      label: t("contact_page.github"),
+      icon: Github,
+      href: "https://github.com/sanchit1606",
+      color: "from-[#24292F] to-[#000000]" // Github Dark
+    },
+    {
+      label: t("contact_page.linkedin"),
+      icon: Linkedin,
+      href: "https://www.linkedin.com/in/sanchit1606",
+      color: "from-[#0A66C2] to-[#004182]" // LinkedIn Blue
+    }
+  ];
 
   return (
     <div className="min-h-screen pt-16">
@@ -44,56 +56,33 @@ const Contact = () => {
         </div>
       </section>
 
-      {/* Form + Info */}
+      {/* Buttons + Info */}
       <section className="section-padding pt-0">
         <div className="container-content">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16">
-            {/* Form */}
+            {/* Buttons */}
             <ScrollReveal>
-              {submitted ? (
-                <div className="bg-card rounded-2xl p-8 card-elevated text-center">
-                  <CheckCircle2 className="w-12 h-12 text-accent mx-auto mb-4" />
-                  <h3 className="font-display font-bold text-xl text-foreground mb-2">{t("contact_page.form_success").split("!")[0]}!</h3>
-                  <p className="text-muted-foreground text-sm">{t("contact_page.form_success").split("! ")[1]}</p>
-                </div>
-              ) : (
-                <form onSubmit={handleSubmit} className="bg-card rounded-2xl p-6 lg:p-8 card-elevated space-y-4">
-                  <div>
-                    <label className="text-sm font-medium text-foreground mb-1.5 block">{t("contact_page.form_name")}</label>
-                    <input required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })}
-                      className="w-full h-11 px-4 rounded-xl bg-background border border-border text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 transition-shadow" />
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium text-foreground mb-1.5 block">{t("contact_page.form_email")}</label>
-                    <input required type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })}
-                      className="w-full h-11 px-4 rounded-xl bg-background border border-border text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 transition-shadow" />
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium text-foreground mb-1.5 block">{t("contact_page.form_org").split(" (")[0]} <span className="text-muted-foreground">({t("contact_page.form_org").split("(")[1]}</span></label>
-                    <input value={form.org} onChange={(e) => setForm({ ...form, org: e.target.value })}
-                      className="w-full h-11 px-4 rounded-xl bg-background border border-border text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 transition-shadow" />
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium text-foreground mb-1.5 block">{t("contact_page.form_subject")}</label>
-                    <select value={form.subject} onChange={(e) => setForm({ ...form, subject: e.target.value })}
-                      className="w-full h-11 px-4 rounded-xl bg-background border border-border text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 transition-shadow appearance-none">
-                      <option value="General Inquiry">{t("contact_page.subject_general")}</option>
-                      <option value="Collaboration">{t("contact_page.subject_collab")}</option>
-                      <option value="Report a Bug">{t("contact_page.subject_bug")}</option>
-                      <option value="Press & Media">{t("contact_page.subject_press")}</option>
-                      <option value="Other">{t("contact_page.subject_other")}</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium text-foreground mb-1.5 block">{t("contact_page.form_message")}</label>
-                    <textarea required rows={4} value={form.message} onChange={(e) => setForm({ ...form, message: e.target.value })}
-                      className="w-full px-4 py-3 rounded-xl bg-background border border-border text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 transition-shadow resize-none" />
-                  </div>
-                  <button type="submit" className="w-full h-12 rounded-xl font-semibold hero-gradient-bg text-primary-foreground btn-press text-sm inline-flex items-center justify-center gap-2">
-                    <Send className="w-4 h-4" /> {t("contact_page.form_submit")}
-                  </button>
-                </form>
-              )}
+              <div className="grid grid-cols-1 gap-4">
+                {contactButtons.map((btn) => (
+                  <a
+                    key={btn.label}
+                    href={btn.href}
+                    target={btn.href.startsWith("mailto") ? undefined : "_blank"}
+                    rel="noopener noreferrer"
+                    className={`group relative flex items-center justify-between p-6 rounded-2xl bg-card border border-border card-elevated btn-press overflow-hidden transition-all hover:border-primary/50`}
+                  >
+                    <div className="flex items-center gap-4 relative z-10">
+                      <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${btn.color} flex items-center justify-center text-white shadow-lg group-hover:scale-110 transition-transform`}>
+                        <btn.icon className="w-6 h-6" />
+                      </div>
+                      <span className="font-display font-bold text-lg text-foreground">{btn.label}</span>
+                    </div>
+                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center group-hover:translate-x-1 transition-transform relative z-10">
+                      <ChevronDown className="w-5 h-5 text-primary -rotate-90" />
+                    </div>
+                  </a>
+                ))}
+              </div>
             </ScrollReveal>
 
             {/* Info */}
