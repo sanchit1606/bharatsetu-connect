@@ -18,8 +18,8 @@
 
 ## Documentation
 
-- **Requirements Specification:** [requirements.md](./requirements.md)
-- **System Design Document:** [design.md](./design.md)
+- **Requirements Specification:** [Requirements Specification](./docs/requirements.md)
+- **System Design Document:** [System Design Document](./docs/design.md)
 
 ---
 
