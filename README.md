@@ -7,7 +7,6 @@
 ![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=flat-square&logo=fastapi&logoColor=white)
 ![Google Gemini](https://img.shields.io/badge/Google%20Gemini-8E75B2?style=flat-square&logo=google&logoColor=white)
 ![Python](https://img.shields.io/badge/Python-3776AB?style=flat-square&logo=python&logoColor=white)
-![AWS Hackathon](https://img.shields.io/badge/AWS-Hackathon%202026-FF9900?style=flat-square&logo=amazon-aws&logoColor=white)
 
 ---
 
