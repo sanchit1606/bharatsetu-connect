@@ -1,20 +1,22 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Menu, X } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import ThemeToggle from "./ThemeToggle";
 import LanguageSelector from "./LanguageSelector";
 
-const navLinks = [
-  { label: "Home", to: "/" },
-  { label: "Features", to: "/features" },
-  { label: "Docs", to: "/docs" },
-  { label: "Contact", to: "/contact" },
-];
-
 const Header = () => {
+  const { t } = useTranslation();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const location = useLocation();
+
+  const navLinks = [
+    { label: t("nav.home"), to: "/" },
+    { label: t("nav.features"), to: "/features" },
+    { label: t("nav.docs"), to: "/docs" },
+    { label: t("nav.contact"), to: "/contact" },
+  ];
 
   useEffect(() => {
     const handler = () => setScrolled(window.scrollY > 60);
@@ -70,7 +72,7 @@ const Header = () => {
             to="/features"
             className="hidden sm:inline-flex h-9 px-4 items-center rounded-lg text-sm font-semibold hero-gradient-bg text-primary-foreground btn-press transition-opacity hover:opacity-90"
           >
-            Explore Platform
+            {t("nav.cta")}
           </Link>
           <button
             onClick={() => setMobileOpen(!mobileOpen)}
@@ -104,7 +106,7 @@ const Header = () => {
             to="/features"
             className="mt-2 h-10 flex items-center justify-center rounded-lg text-sm font-semibold hero-gradient-bg text-primary-foreground btn-press"
           >
-            Explore Platform
+            {t("nav.cta")}
           </Link>
         </nav>
       </div>
