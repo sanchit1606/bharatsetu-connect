@@ -18,18 +18,14 @@
 
 ## Documentation
 
-As mentioned under submission guidelines, here are the Kiro-generated and modified documentation files:
-
 - **Requirements Specification:** [requirements.md](./requirements.md)
 - **System Design Document:** [design.md](./design.md)
-
-For detailed technical documentation, check out [@BharatSetu_Technical_Documentation.md](./BharatSetu_Technical_Documentation.md)
 
 ---
 
 ## Live Demo
 
-**Deployed Prototype:** [https://bharatsetuu.netlify.app/](https://bharatsetuu.netlify.app/)
+**Deployed Prototype:** [https://bharatsetu-amd.vercel.app/](https://bharatsetu-amd.vercel.app/)
 
 ---
 
