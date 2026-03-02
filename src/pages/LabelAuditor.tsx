@@ -337,7 +337,7 @@ export default function LabelAuditor() {
                             <button
                                 onClick={handleOCR}
                                 disabled={isOcrLoading}
-                                className="w-full h-11 bg-accent/10 border border-accent/20 text-accent rounded-xl font-semibold flex items-center justify-center gap-2 hover:bg-accent/20 transition-all btn-press mt-2 shadow-sm"
+                                className="w-full h-11 bg-primary text-primary-foreground rounded-xl font-semibold flex items-center justify-center gap-2 hover:bg-primary/90 transition-all btn-press mt-2 shadow-sm"
                             >
                                 {isOcrLoading ? (
                                     <><Loader2 className="w-4 h-4 animate-spin" /> Processing OCR...</>
