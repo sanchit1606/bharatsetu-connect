@@ -183,8 +183,11 @@ export default function LabelAuditor() {
         setIsOcrLoading(true);
         try {
             const img = new window.Image();
-            img.src = previewUrl;
-            await new Promise<void>((resolve) => { img.onload = () => resolve(); });
+            await new Promise<void>((resolve, reject) => {
+                img.onload = () => resolve();
+                img.onerror = () => reject(new Error("Image failed to load"));
+                img.src = previewUrl;
+            });
             setImageDimensions({ width: img.naturalWidth, height: img.naturalHeight });
 
             const worker = await createWorker(language === "en" ? "eng" : language === "hi" ? "hin" : "eng");
@@ -192,7 +195,7 @@ export default function LabelAuditor() {
             // Tesseract v7: lines/words live under data.blocks → paragraphs → lines → words
             const blocks = data.blocks ?? [];
             const lines = blocks.flatMap((b: any) => b.paragraphs ?? []).flatMap((p: any) => p.lines ?? []);
-            const words = lines.flatMap((l: any) => l.words ?? []);
+            const words = lines.flatMap((l: any) => l.words ?? []).filter((w: any) => (w.confidence ?? 0) > 50);
             setOcrData({
                 text: data.text,
                 words,
@@ -415,28 +418,9 @@ export default function LabelAuditor() {
                                     </svg>
                                 </div>
 
-                                {/* Detected Lines with Per-line Confidence */}
-                                <div className="p-4 bg-muted/30 border border-border rounded-xl">
-                                    <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-3">Detected Lines &amp; Confidence</h4>
-                                    <div className="space-y-2 max-h-60 overflow-y-auto">
-                                        {ocrData.lines.map((line: any, i: number) => (
-                                            <div key={i} className="flex items-start justify-between gap-3 p-2.5 rounded-lg bg-background/50 border border-border/50 text-sm">
-                                                <span className="font-mono text-foreground/80 flex-1 break-all leading-relaxed">{line.text}</span>
-                                                <span className={`text-xs font-bold px-2 py-0.5 rounded-full whitespace-nowrap shrink-0 ${
-                                                    line.confidence >= 80 ? 'bg-green-500/10 text-green-600' :
-                                                    line.confidence >= 50 ? 'bg-yellow-500/10 text-yellow-600' :
-                                                    'bg-red-500/10 text-red-600'
-                                                }`}>
-                                                    {Math.round(line.confidence)}%
-                                                </span>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-
                                 {/* Full Recognized Text */}
                                 <div className="p-4 bg-muted/30 border border-border rounded-xl">
-                                    <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-2">Full Recognized Text</h4>
+                                    <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-2">Recognized Text</h4>
                                     <div className="text-sm text-foreground/80 leading-relaxed font-mono bg-background/50 p-3 rounded-lg border border-border/50 max-h-40 overflow-y-auto whitespace-pre-wrap">
                                         {ocrData.text}
                                     </div>
