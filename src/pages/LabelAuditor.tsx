@@ -7,6 +7,7 @@ import { useTranslation } from "react-i18next";
 import { createWorker } from "tesseract.js";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip as RechartsTooltip } from "recharts";
 import ScrollReveal from "@/components/ScrollReveal";
+import { analyzeLabel, isBackendConfigured, type LabelAnalysisResult } from "@/lib/labelAuditorApi";
 
 // --- MOCK API DATA ---
 const MOCK_API_RESPONSE = {
@@ -72,7 +73,7 @@ export default function LabelAuditor() {
     const [isLoading, setIsLoading] = useState(false);
     const [loadingStep, setLoadingStep] = useState(0);
 
-    const [result, setResult] = useState<typeof MOCK_API_RESPONSE | null>(null);
+    const [result, setResult] = useState<LabelAnalysisResult | null>(null);
 
     const [isSpeaking, setIsSpeaking] = useState(false);
     const synth = window.speechSynthesis;
@@ -211,19 +212,47 @@ export default function LabelAuditor() {
         }
     };
 
-    const triggerAnalysis = () => {
+    const fileToBase64 = (file: File): Promise<string> => {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => {
+                const dataUrl = reader.result as string;
+                resolve(dataUrl.includes(",") ? dataUrl.split(",")[1] ?? "" : dataUrl);
+            };
+            reader.onerror = () => reject(reader.error);
+            reader.readAsDataURL(file);
+        });
+    };
+
+    const triggerAnalysis = async () => {
         setIsLoading(true);
         setLoadingStep(0);
+        const scrollToOutput = () => document.getElementById("analysis-output")?.scrollIntoView({ behavior: "smooth" });
 
-        // MOCK API DELAY
-        setTimeout(() => {
-            setResult(MOCK_API_RESPONSE);
-            setIsLoading(false);
-            // Scroll to output
+        if (isBackendConfigured()) {
+            try {
+                const imageBase64 = imageFile ? await fileToBase64(imageFile) : undefined;
+                const data = await analyzeLabel({
+                    ocr_text: ocrData?.text,
+                    image_base64: imageBase64,
+                    query: query.trim(),
+                    language,
+                });
+                setResult(data);
+                setTimeout(scrollToOutput, 100);
+            } catch (err) {
+                console.error("Label analysis error:", err);
+                alert(t("label_auditor_page.error_api"));
+            } finally {
+                setIsLoading(false);
+            }
+        } else {
             setTimeout(() => {
-                document.getElementById("analysis-output")?.scrollIntoView({ behavior: 'smooth' });
-            }, 100);
-        }, 8000);
+                setResult(MOCK_API_RESPONSE);
+                setIsLoading(false);
+                setTimeout(scrollToOutput, 100);
+            }, 8000);
+        }
     };
 
     const resetAll = () => {
