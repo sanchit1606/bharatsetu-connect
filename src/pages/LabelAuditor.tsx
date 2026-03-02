@@ -1,9 +1,10 @@
 import React, { useState, useRef, useEffect } from "react";
 import {
     Camera, Image as ImageIcon, X, Mic, MicOff, Search, Loader2,
-    AlertTriangle, CheckCircle, Info, Volume2, Square, RotateCcw, Download, Share2
+    AlertTriangle, CheckCircle, Info, Volume2, Square, RotateCcw, Download, Share2, Scan
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { createWorker } from "tesseract.js";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip as RechartsTooltip } from "recharts";
 import ScrollReveal from "@/components/ScrollReveal";
 
@@ -58,6 +59,9 @@ export default function LabelAuditor() {
     const { t } = useTranslation();
     const [imageFile, setImageFile] = useState<File | null>(null);
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+    const [ocrData, setOcrData] = useState<{ text: string, words: any[], lines: any[], confidence: number } | null>(null);
+    const [isOcrLoading, setIsOcrLoading] = useState(false);
+    const [imageDimensions, setImageDimensions] = useState<{ width: number, height: number } | null>(null);
 
     const [query, setQuery] = useState("");
     const [language, setLanguage] = useState("en");
@@ -140,6 +144,8 @@ export default function LabelAuditor() {
         setImageFile(null);
         if (previewUrl) URL.revokeObjectURL(previewUrl);
         setPreviewUrl(null);
+        setOcrData(null);
+        setImageDimensions(null);
         if (fileInputRef.current) fileInputRef.current.value = "";
         if (cameraInputRef.current) cameraInputRef.current.value = "";
     };
@@ -170,6 +176,36 @@ export default function LabelAuditor() {
         utterance.onend = () => setIsSpeaking(false);
         synth.speak(utterance);
         setIsSpeaking(true);
+    };
+
+    const handleOCR = async () => {
+        if (!imageFile || !previewUrl) return;
+        setIsOcrLoading(true);
+        try {
+            const img = new window.Image();
+            img.src = previewUrl;
+            await new Promise<void>((resolve) => { img.onload = () => resolve(); });
+            setImageDimensions({ width: img.naturalWidth, height: img.naturalHeight });
+
+            const worker = await createWorker(language === "en" ? "eng" : language === "hi" ? "hin" : "eng");
+            const { data } = await worker.recognize(imageFile, {}, { blocks: true });
+            // Tesseract v7: lines/words live under data.blocks → paragraphs → lines → words
+            const blocks = data.blocks ?? [];
+            const lines = blocks.flatMap((b: any) => b.paragraphs ?? []).flatMap((p: any) => p.lines ?? []);
+            const words = lines.flatMap((l: any) => l.words ?? []);
+            setOcrData({
+                text: data.text,
+                words,
+                lines,
+                confidence: data.confidence ?? 0
+            });
+            await worker.terminate();
+        } catch (error) {
+            console.error("OCR Error:", error);
+            alert(t("label_auditor_page.error_api"));
+        } finally {
+            setIsOcrLoading(false);
+        }
     };
 
     const triggerAnalysis = () => {
@@ -241,7 +277,9 @@ export default function LabelAuditor() {
                         <div className={`border-2 border-dashed rounded-2xl flex flex-col items-center justify-center p-6 text-center transition-colors ${previewUrl ? 'border-primary/50 bg-primary/5' : 'border-border/60 hover:border-primary/50 bg-card'} relative h-64 overflow-hidden`}>
                             {previewUrl ? (
                                 <>
-                                    <img src={previewUrl} alt="Preview" className="absolute inset-0 w-full h-full object-contain p-2" />
+                                    <div className="relative w-full h-full">
+                                        <img src={previewUrl} alt="Preview" className="absolute inset-0 w-full h-full object-contain p-2" />
+                                    </div>
                                     <button
                                         onClick={removeImage}
                                         className="absolute top-3 right-3 bg-black/50 hover:bg-black/70 text-white rounded-full p-1.5 backdrop-blur-sm transition-colors z-10"
@@ -291,6 +329,120 @@ export default function LabelAuditor() {
                             )}
                         </div>
                         <p className="text-xs text-center text-muted-foreground truncate">{t("label_auditor_page.supported_formats")}</p>
+
+                        {previewUrl && (
+                            <button
+                                onClick={handleOCR}
+                                disabled={isOcrLoading}
+                                className="w-full h-11 bg-accent/10 border border-accent/20 text-accent rounded-xl font-semibold flex items-center justify-center gap-2 hover:bg-accent/20 transition-all btn-press mt-2 shadow-sm"
+                            >
+                                {isOcrLoading ? (
+                                    <><Loader2 className="w-4 h-4 animate-spin" /> Processing OCR...</>
+                                ) : (
+                                    <><Scan className="w-4 h-4" /> Analyze Text (OCR)</>
+                                )}
+                            </button>
+                        )}
+
+                        {ocrData && imageDimensions && (
+                            <div className="mt-4 space-y-4 animate-fade-in">
+                                {/* Overall Confidence */}
+                                <div className="flex items-center justify-between p-3 bg-muted/30 border border-border rounded-xl">
+                                    <h4 className="text-sm font-bold text-foreground flex items-center gap-2">
+                                        <Scan className="w-4 h-4 text-primary" /> OCR Results
+                                    </h4>
+                                    <div className={`text-xs font-bold px-3 py-1 rounded-full ${
+                                        ocrData.confidence >= 80 ? 'bg-green-500/10 text-green-600 border border-green-200 dark:border-green-900' :
+                                        ocrData.confidence >= 50 ? 'bg-yellow-500/10 text-yellow-600 border border-yellow-200 dark:border-yellow-900' :
+                                        'bg-red-500/10 text-red-600 border border-red-200 dark:border-red-900'
+                                    }`}>
+                                        Overall Confidence: {Math.round(ocrData.confidence)}%
+                                    </div>
+                                </div>
+
+                                {/* Image with Red Bounding Boxes — same aspect-ratio wrapper so overlay aligns */}
+                                <div
+                                    className="relative rounded-xl overflow-hidden border border-border bg-black/5"
+                                    style={{ aspectRatio: `${imageDimensions.width} / ${imageDimensions.height}` }}
+                                >
+                                    <img
+                                        src={previewUrl!}
+                                        alt="OCR Analysis"
+                                        className="absolute inset-0 w-full h-full object-contain"
+                                    />
+                                    <svg
+                                        className="absolute inset-0 w-full h-full pointer-events-none z-10"
+                                        viewBox={`0 0 ${imageDimensions.width} ${imageDimensions.height}`}
+                                        preserveAspectRatio="xMidYMid meet"
+                                    >
+                                        {ocrData.lines.map((line: any, i: number) => {
+                                            const b = line.bbox ?? {};
+                                            const w = (b.x1 ?? b.x0 ?? 0) - (b.x0 ?? 0);
+                                            const h = (b.y1 ?? b.y0 ?? 0) - (b.y0 ?? 0);
+                                            if (w <= 0 || h <= 0) return null;
+                                            return (
+                                                <rect
+                                                    key={`line-${i}`}
+                                                    x={b.x0}
+                                                    y={b.y0}
+                                                    width={w}
+                                                    height={h}
+                                                    fill="rgba(239, 68, 68, 0.12)"
+                                                    stroke="#dc2626"
+                                                    strokeWidth={Math.max(imageDimensions.width * 0.003, 2)}
+                                                    strokeDasharray="6 4"
+                                                />
+                                            );
+                                        })}
+                                        {ocrData.words.map((word: any, i: number) => {
+                                            const b = word.bbox ?? {};
+                                            const w = (b.x1 ?? b.x0 ?? 0) - (b.x0 ?? 0);
+                                            const h = (b.y1 ?? b.y0 ?? 0) - (b.y0 ?? 0);
+                                            if (w <= 0 || h <= 0) return null;
+                                            return (
+                                                <rect
+                                                    key={`word-${i}`}
+                                                    x={b.x0}
+                                                    y={b.y0}
+                                                    width={w}
+                                                    height={h}
+                                                    fill="rgba(239, 68, 68, 0.15)"
+                                                    stroke="#b91c1c"
+                                                    strokeWidth={Math.max(imageDimensions.width * 0.002, 1.5)}
+                                                />
+                                            );
+                                        })}
+                                    </svg>
+                                </div>
+
+                                {/* Detected Lines with Per-line Confidence */}
+                                <div className="p-4 bg-muted/30 border border-border rounded-xl">
+                                    <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-3">Detected Lines &amp; Confidence</h4>
+                                    <div className="space-y-2 max-h-60 overflow-y-auto">
+                                        {ocrData.lines.map((line: any, i: number) => (
+                                            <div key={i} className="flex items-start justify-between gap-3 p-2.5 rounded-lg bg-background/50 border border-border/50 text-sm">
+                                                <span className="font-mono text-foreground/80 flex-1 break-all leading-relaxed">{line.text}</span>
+                                                <span className={`text-xs font-bold px-2 py-0.5 rounded-full whitespace-nowrap shrink-0 ${
+                                                    line.confidence >= 80 ? 'bg-green-500/10 text-green-600' :
+                                                    line.confidence >= 50 ? 'bg-yellow-500/10 text-yellow-600' :
+                                                    'bg-red-500/10 text-red-600'
+                                                }`}>
+                                                    {Math.round(line.confidence)}%
+                                                </span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* Full Recognized Text */}
+                                <div className="p-4 bg-muted/30 border border-border rounded-xl">
+                                    <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-2">Full Recognized Text</h4>
+                                    <div className="text-sm text-foreground/80 leading-relaxed font-mono bg-background/50 p-3 rounded-lg border border-border/50 max-h-40 overflow-y-auto whitespace-pre-wrap">
+                                        {ocrData.text}
+                                    </div>
+                                </div>
+                            </div>
+                        )}
                     </div>
 
                     {/* Right Column: Query */}
