@@ -1,0 +1,23 @@
+version: 1
+applications:
+  - appRoot: .
+    backend:
+      phases:
+        build:
+          commands:
+            - npm ci --legacy-peer-deps
+            - npx ampx sandbox --no-browser --outputs-out-dir .
+    frontend:
+      phases:
+        preBuild:
+          commands:
+            - npm ci --legacy-peer-deps
+        build:
+          commands:
+            - npm run build
+      artifacts:
+        baseDirectory: dist
+        files: '**/*'
+      cache:
+        paths:
+          - node_modules/**/*
