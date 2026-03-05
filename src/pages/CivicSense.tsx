@@ -12,6 +12,9 @@ import {
   Copy,
   Send,
   Smartphone,
+  Upload,
+  FileVideo,
+  X,
 } from "lucide-react";
 import ScrollReveal from "@/components/ScrollReveal";
 
@@ -460,22 +463,55 @@ const CivicSense: React.FC = () => {
                     <ImageIcon className="w-3.5 h-3.5 text-primary" />
                     Photo or video proof <span className="text-destructive font-semibold">(required)</span>
                   </label>
-                  <label className="flex h-10 items-center justify-between gap-2 rounded-xl border border-dashed border-border bg-background px-3 text-xs text-muted-foreground cursor-pointer hover:bg-muted/60">
-                    <span className="truncate">
-                      {photo ? photo.name : "Choose photo or video as proof of the issue"}
-                    </span>
-                    <span className="shrink-0 px-2 py-1 rounded-lg bg-muted text-[10px] font-medium">
-                      Choose file
-                    </span>
+                  <label className="flex min-h-[120px] flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed border-border bg-muted/30 px-4 py-6 text-center cursor-pointer transition-colors hover:border-primary/40 hover:bg-muted/50 focus-within:border-primary/60 focus-within:ring-2 focus-within:ring-primary/20">
                     <input
                       type="file"
                       accept="image/*,video/*"
-                      className="hidden"
+                      className="absolute w-0 h-0 opacity-0 pointer-events-none"
                       onChange={handlePhotoChange}
                     />
+                    {photo ? (
+                      <div className="flex flex-col items-center gap-2 w-full">
+                        <div className="flex items-center gap-2 rounded-lg bg-background/80 px-3 py-2 border border-border w-full max-w-sm">
+                          {photo.type.startsWith("video/") ? (
+                            <FileVideo className="w-5 h-5 text-primary shrink-0" />
+                          ) : (
+                            <ImageIcon className="w-5 h-5 text-primary shrink-0" />
+                          )}
+                          <span className="truncate text-sm font-medium text-foreground">{photo.name}</span>
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              setPhoto(null);
+                            }}
+                            className="ml-auto p-1 rounded-md hover:bg-muted text-muted-foreground hover:text-foreground"
+                            aria-label="Remove file"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
+                        <span className="text-xs text-muted-foreground">Tap to change file</span>
+                      </div>
+                    ) : (
+                      <>
+                        <div className="rounded-full bg-primary/10 p-3">
+                          <Upload className="w-6 h-6 text-primary" />
+                        </div>
+                        <div className="space-y-1">
+                          <p className="text-sm font-medium text-foreground">
+                            Drop photo or video here, or <span className="text-primary underline">browse</span>
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            Image up to 10MB · Video up to 50MB
+                          </p>
+                        </div>
+                      </>
+                    )}
                   </label>
                   <p className="text-[11px] text-muted-foreground">
-                    Proof is required. Photo/video up to 10MB (video up to 50MB). Processed on-device,{" "}
+                    Proof is required. Processed on-device,{" "}
                     <span className="font-semibold text-foreground">not stored</span>.
                   </p>
                 </div>
