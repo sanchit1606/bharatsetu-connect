@@ -73,15 +73,26 @@ const FeatureSection = ({
                   {id === "lab-analyzer" && <Microscope className="w-8 h-8 text-primary" />}
                   {id === "gynaecare" && <Flower2 className="w-8 h-8 text-primary" />}
                 </div>
-                <p className="text-sm">Interactive demo coming soon</p>
+                <p className="text-sm">
+                  {id === "label-auditor" || id === "civicsense"
+                    ? "Try the live interface"
+                    : "Interactive demo coming soon"}
+                </p>
               </div>
             </div>
-            {id === "label-auditor" ? (
-              <Link to="/label-auditor" className="mt-4 w-full h-12 rounded-xl font-semibold hero-gradient-bg text-primary-foreground btn-press flex items-center justify-center text-sm flex-shrink-0">
+            {id === "label-auditor" || id === "civicsense" ? (
+              <Link
+                to={id === "label-auditor" ? "/label-auditor" : "/civicsense"}
+                className="mt-4 w-full h-12 rounded-xl font-semibold hero-gradient-bg text-primary-foreground btn-press flex items-center justify-center text-sm flex-shrink-0"
+              >
                 Try It →
               </Link>
             ) : (
-              <button disabled className="mt-4 w-full h-12 rounded-xl font-semibold bg-muted text-muted-foreground cursor-not-allowed text-sm" title="Coming soon — backend integration in progress">
+              <button
+                disabled
+                className="mt-4 w-full h-12 rounded-xl font-semibold bg-muted text-muted-foreground cursor-not-allowed text-sm"
+                title="Coming soon — backend integration in progress"
+              >
                 Try It → (Coming Soon)
               </button>
             )}
