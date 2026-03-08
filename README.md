@@ -32,7 +32,7 @@
 
 ## Live Demo
 
-**Deployed Prototype:** [https://bharatsetu-amd.vercel.app/](https://bharatsetu-amd.vercel.app/)
+**Deployed Prototype:** [https://bharatsetu-sanchit.vercel.app/](https://bharatsetu-sanchit.vercel.app/)
 
 ---
 
