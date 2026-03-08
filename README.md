@@ -54,6 +54,6 @@
 
 ## License
 
-This project is developed by Sanchit for the AMD Slingshot Hackathon.
+This project is developed by Sanchit for the Hackathon.
 
 ---
