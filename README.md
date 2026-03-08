@@ -3,23 +3,22 @@
 **AI-Powered Citizen Empowerment Platform**  
 *Connecting Communities to Information, Resources & Public Services*
 
-![React](https://img.shields.io/badge/React-20232A?style=flat-square&logo=react&logoColor=61DAFB)
-![AWS](https://img.shields.io/badge/AWS-Amplify%20%7C%20Bedrock%20%7C%20Lambda-FF9900?style=flat-square&logo=amazon-aws&logoColor=white)
-![Anthropic Claude](https://img.shields.io/badge/Anthropic-Claude-CC785C?style=flat-square&logo=anthropic&logoColor=white)
-![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=flat-square&logo=fastapi&logoColor=white)
-![Python](https://img.shields.io/badge/Python-3776AB?style=flat-square&logo=python&logoColor=white)
+React
+AWS
+Anthropic Claude
+FastAPI
+Python
 
 ---
 
-<p align="center">
-  <img src="./effecrt.gif" alt="effect animation" width="120" height="120" />
-</p>
+
 
 ## Built with
 
 - **Frontend:** React (Vite), TypeScript
-- **AI model:** Anthropic Claude (via Amazon Bedrock)
+- **AI model:** Amazon Nova Lite (via Amazon Bedrock)
 - **AWS:** Amplify (Hosting + Gen 2 Backend), Lambda, API Gateway, Amazon Bedrock
+- **Data storage (current):** Stateless — no persistent storage; Label Auditor results are not saved.
 
 ---
 
@@ -42,20 +41,7 @@
 
 **Developer:** Sanchit Nipanikar
 
-<p>
-  <a href="https://www.linkedin.com/in/sanchit1606" target="_blank" rel="noopener noreferrer">
-    <img src="https://img.shields.io/badge/LinkedIn-Sanchit%20Nipanikar-0A66C2?style=flat-square&logo=linkedin&logoColor=white" alt="LinkedIn" />
-  </a>
-  <a href="https://portfolio-three-silk-62.vercel.app/" target="_blank" rel="noopener noreferrer">
-    <img src="https://img.shields.io/badge/Portfolio-Website-7A7A7A?style=flat-square&logo=google-chrome&logoColor=white" alt="Portfolio" />
-  </a>
-  <a href="https://github.com/sanchit1606" target="_blank" rel="noopener noreferrer">
-    <img src="https://img.shields.io/badge/GitHub-sanchit1606-181717?style=flat-square&logo=github&logoColor=white" alt="GitHub" />
-  </a>
-  <a href="mailto:sanchitnipanikar@gmail.com" target="_blank" rel="noopener noreferrer">
-    <img src="https://img.shields.io/badge/Email-sanchitnipanikar%40gmail.com-D14836?style=flat-square&logo=gmail&logoColor=white" alt="Email" />
-  </a>
-</p>
+
 
 ---
 
@@ -64,3 +50,4 @@
 This project is developed by Sanchit for the Hackathon.
 
 ---
+
