@@ -17,6 +17,8 @@ export interface LabelAnalysisResult {
 export interface AnalyzeLabelRequest {
   ocr_text?: string;
   image_base64?: string;
+  /** e.g. "image/jpeg" or "image/png" — used when sending image to vision model */
+  image_media_type?: string;
   query: string;
   language: string;
 }
@@ -43,7 +45,15 @@ export async function analyzeLabel(
 
   if (!res.ok) {
     const text = await res.text();
-    throw new Error(text || `Analysis failed: ${res.status}`);
+    let message = text || `Analysis failed: ${res.status}`;
+    try {
+      const json = JSON.parse(text) as { error?: string; message?: string };
+      if (json.message) message = json.message;
+      else if (json.error) message = `${json.error}${json.message ? `: ${json.message}` : ""}`;
+    } catch {
+      // use text as-is
+    }
+    throw new Error(message);
   }
 
   return res.json() as Promise<LabelAnalysisResult>;

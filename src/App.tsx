@@ -12,6 +12,7 @@ import Contact from "./pages/Contact";
 import NotFound from "./pages/NotFound";
 import CivicSense from "./pages/CivicSense";
 import RightsAssistant from "./pages/RightsAssistant";
+import GynaeCare from "./pages/GynaeCare";
 import { Suspense, useEffect } from "react";
 
 const queryClient = new QueryClient();
@@ -45,6 +46,7 @@ const AnimatedRoutes = () => {
           <Route path="/label-auditor" element={<LabelAuditor />} />
           <Route path="/civicsense" element={<CivicSense />} />
           <Route path="/rights-assistant" element={<RightsAssistant />} />
+          <Route path="/gynaecare" element={<GynaeCare />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </motion.div>

@@ -74,20 +74,22 @@ const FeatureSection = ({
                   {id === "gynaecare" && <Flower2 className="w-8 h-8 text-primary" />}
                 </div>
                 <p className="text-sm">
-                  {id === "label-auditor" || id === "civicsense" || id === "rights-assistant"
+                  {id === "label-auditor" || id === "civicsense" || id === "rights-assistant" || id === "gynaecare"
                     ? "Try the live interface"
                     : "Interactive demo coming soon"}
                 </p>
               </div>
             </div>
-            {id === "label-auditor" || id === "civicsense" || id === "rights-assistant" ? (
+            {id === "label-auditor" || id === "civicsense" || id === "rights-assistant" || id === "gynaecare" ? (
               <Link
                 to={
                   id === "label-auditor"
                     ? "/label-auditor"
                     : id === "civicsense"
                     ? "/civicsense"
-                    : "/rights-assistant"
+                    : id === "rights-assistant"
+                    ? "/rights-assistant"
+                    : "/gynaecare"
                 }
                 className="mt-4 w-full h-12 rounded-xl font-semibold hero-gradient-bg text-primary-foreground btn-press flex items-center justify-center text-sm flex-shrink-0"
               >
@@ -108,14 +110,6 @@ const FeatureSection = ({
     </div>
   </section>
 );
-
-const comparisonData = [
-  { feature: "Label Auditor", input: "Image / Camera", languages: "10+", data: "None", output: "Health Report", who: "Everyone" },
-  { feature: "CivicSense", input: "Text / Voice / Image", languages: "10+", data: "None", output: "Complaint Draft", who: "Citizens" },
-  { feature: "Rights Assistant", input: "Document / Text / Voice", languages: "10+", data: "None", output: "Legal Explanation", who: "Everyone" },
-  { feature: "Lab Report Analyzer", input: "PDF / Image", languages: "10+", data: "None", output: "Visual Report", who: "Patients" },
-  { feature: "GynaeCare", input: "Text / Voice", languages: "10+", data: "None", output: "Health Guidance", who: "Women" },
-];
 
 const Features = () => {
   const location = useLocation();
@@ -276,43 +270,6 @@ const Features = () => {
         ]}
         privacy="Completely Anonymous — No questions are logged. No identity required. Your conversation disappears when you close the tab."
       />
-
-      {/* Comparison Table */}
-      <section className="section-padding bg-card">
-        <div className="container-content">
-          <ScrollReveal className="text-center mb-10">
-            <h2 className="text-3xl sm:text-4xl font-display font-bold text-foreground">{t("features_page.comparison_title")}</h2>
-          </ScrollReveal>
-          <ScrollReveal>
-            <div className="overflow-x-auto rounded-2xl border border-border">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="bg-muted">
-                    <th className="text-left px-4 py-3 font-display font-semibold text-foreground">Feature</th>
-                    <th className="text-left px-4 py-3 font-display font-semibold text-foreground">{t("features_page.col_input")}</th>
-                    <th className="text-left px-4 py-3 font-display font-semibold text-foreground">{t("features_page.col_languages")}</th>
-                    <th className="text-left px-4 py-3 font-display font-semibold text-foreground">{t("features_page.col_data")}</th>
-                    <th className="text-left px-4 py-3 font-display font-semibold text-foreground">{t("features_page.col_output")}</th>
-                    <th className="text-left px-4 py-3 font-display font-semibold text-foreground">{t("features_page.col_for")}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {comparisonData.map((row, i) => (
-                    <tr key={row.feature} className={`border-t border-border ${i % 2 === 0 ? "bg-background" : "bg-card"}`}>
-                      <td className="px-4 py-3 font-medium text-foreground">{row.feature}</td>
-                      <td className="px-4 py-3 text-muted-foreground">{row.input}</td>
-                      <td className="px-4 py-3 text-muted-foreground">{row.languages}</td>
-                      <td className="px-4 py-3"><span className="text-accent font-semibold">{row.data}</span></td>
-                      <td className="px-4 py-3 text-muted-foreground">{row.output}</td>
-                      <td className="px-4 py-3 text-muted-foreground">{row.who}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </ScrollReveal>
-        </div>
-      </section>
 
       {/* Footer CTA */}
       <section className="section-padding">

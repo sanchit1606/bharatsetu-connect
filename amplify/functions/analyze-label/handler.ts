@@ -4,10 +4,10 @@ import {
   InvokeModelCommand,
 } from "@aws-sdk/client-bedrock-runtime";
 
-const client = new BedrockRuntimeClient({ region: process.env.AWS_REGION ?? "us-east-1" });
+const client = new BedrockRuntimeClient({ region: process.env.AWS_REGION ?? "ap-south-1" });
 
-/** Model ID from env or default (Claude 3 Haiku — cost-effective). */
-const MODEL_ID = process.env.BEDROCK_MODEL_ID ?? "anthropic.claude-3-haiku-20240307-v1:0";
+/** Nova Lite inference profile for on-demand (ap-south-1). ID: apac.amazon.nova-lite-v1:0; ARN format: arn:aws:bedrock:ap-south-1:ACCOUNT:inference-profile/apac.amazon.nova-lite-v1:0 */
+const MODEL_ID = process.env.BEDROCK_MODEL_ID ?? "apac.amazon.nova-lite-v1:0";
 
 const CORS_HEADERS = {
   "Access-Control-Allow-Origin": "*",
@@ -18,8 +18,37 @@ const CORS_HEADERS = {
 interface AnalyzeRequest {
   ocr_text?: string;
   image_base64?: string;
+  image_media_type?: string;
   query: string;
   language: string;
+}
+
+/** Map MIME type to Nova image format (jpeg, png, gif, webp). */
+function toNovaImageFormat(mediaType: string): string {
+  if (/^image\/(jpeg|jpg)$/i.test(mediaType)) return "jpeg";
+  if (/^image\/png$/i.test(mediaType)) return "png";
+  if (/^image\/gif$/i.test(mediaType)) return "gif";
+  if (/^image\/webp$/i.test(mediaType)) return "webp";
+  return "jpeg";
+}
+
+/** Build Nova user message content: image (if provided) + text. */
+function buildNovaMessageContent(
+  imageBase64: string | undefined,
+  imageMediaType: string,
+  textPrompt: string
+): Array<{ image?: { format: string; source: { bytes: string } }; text?: string }> {
+  const content: Array<{ image?: { format: string; source: { bytes: string } }; text?: string }> = [];
+  if (imageBase64?.trim()) {
+    content.push({
+      image: {
+        format: toNovaImageFormat(imageMediaType),
+        source: { bytes: imageBase64.trim() },
+      },
+    });
+  }
+  content.push({ text: textPrompt });
+  return content;
 }
 
 export const handler: APIGatewayProxyHandler = async (event) => {
@@ -46,7 +75,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     };
   }
 
-  const { ocr_text, query, language } = body;
+  const { ocr_text, image_base64, image_media_type, query, language } = body;
   if (!query?.trim()) {
     return {
       statusCode: 400,
@@ -55,12 +84,17 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     };
   }
 
-  const labelText = (ocr_text ?? "").trim() || "(No label text provided)";
+  const hasImage = Boolean(image_base64?.trim());
+  const labelText = (ocr_text ?? "").trim();
   const lang = (language ?? "en").toLowerCase();
   const userQuery = query.trim();
 
-  const prompt = `You are a food and cosmetics label analyst for Indian consumers (FSSAI-aware). 
-Given the following extracted label text and a user health/context query, respond with a valid JSON object only (no markdown, no extra text) with this exact structure:
+  const instruction = hasImage
+    ? "Look at the product label image attached and the user query below. Extract all visible information (product name, manufacturer, nutrition facts, ingredients, claims) from the image. Then answer the user's health/context question based on the label and respond with a valid JSON object only (no markdown, no extra text)."
+    : "You are a food and cosmetics label analyst for Indian consumers (FSSAI-aware). Use the label text and user query below to produce the response.";
+
+  const prompt = `${instruction}
+Respond with this exact JSON structure only:
 {
   "product_name": "string",
   "manufacturer": "string",
@@ -73,13 +107,16 @@ Given the following extracted label text and a user health/context query, respon
   "false_claims": [{"claim": "string", "flag": "MISLEADING"|"ACCURATE"|"UNVERIFIED", "explanation": "string"}]
 }
 Infer nutrition and daily_limits from the label where possible; use 0 for missing values. Keep ai_response concise and helpful.
-
-Label text:
-${labelText}
-
+${labelText ? `\nLabel text (if any):\n${labelText}\n` : ""}
 User query: ${userQuery}
 
 Respond with only the JSON object.`;
+
+  const messageContent = buildNovaMessageContent(
+    image_base64,
+    image_media_type ?? "image/jpeg",
+    prompt
+  );
 
   try {
     const response = await client.send(
@@ -88,9 +125,9 @@ Respond with only the JSON object.`;
         contentType: "application/json",
         accept: "application/json",
         body: JSON.stringify({
-          anthropic_version: "bedrock-2023-05-31",
-          max_tokens: 2048,
-          messages: [{ role: "user", content: prompt }],
+          schemaVersion: "messages-v1",
+          messages: [{ role: "user", content: messageContent }],
+          inferenceConfig: { maxTokens: 2048, temperature: 0.3, topP: 0.9, topK: 50 },
         }),
       })
     );
@@ -101,7 +138,11 @@ Respond with only the JSON object.`;
     }
     const text = new TextDecoder().decode(rawBody);
     const parsed = JSON.parse(text);
-    const outputText = parsed?.content?.[0]?.text ?? parsed?.completion ?? text;
+    const outputText =
+      parsed?.output?.message?.content?.[0]?.text ??
+      parsed?.content?.[0]?.text ??
+      parsed?.completion ??
+      text;
 
     let result: Record<string, unknown>;
     try {

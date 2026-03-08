@@ -25,6 +25,8 @@ dist-ssr
 *.sln
 *.sw?
 
-# Amplify
+# Amplify (use npm / package-lock.json for Lambda; multiple lock files break sandbox)
 amplify_outputs.json
 .amplify
+bun.lock
+bun.lockb

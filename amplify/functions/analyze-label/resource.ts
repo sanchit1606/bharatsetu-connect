@@ -5,4 +5,6 @@ export const analyzeLabel = defineFunction({
   entry: "./handler.ts",
   timeoutSeconds: 60,
   memoryMB: 512,
+  depsLockFilePath: "package-lock.json",
+  runtime: 20,
 });

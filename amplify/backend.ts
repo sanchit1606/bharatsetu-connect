@@ -27,15 +27,18 @@ analyzeResource.addMethod(
   new LambdaIntegration(backend.analyzeLabel.resources.lambda),
   { authorizationType: AuthorizationType.NONE }
 );
-analyzeResource.addMethod(
-  "OPTIONS",
-  new LambdaIntegration(backend.analyzeLabel.resources.lambda),
-  { authorizationType: AuthorizationType.NONE }
-);
+// OPTIONS is added automatically by defaultCorsPreflightOptions; do not add it again or you get duplicate construct error
 
 backend.analyzeLabel.resources.lambda.addToRolePolicy(
   new PolicyStatement({
     actions: ["bedrock:InvokeModel"],
+    resources: ["*"],
+  })
+);
+// Required for first-time model enablement / Marketplace-backed models in some regions
+backend.analyzeLabel.resources.lambda.addToRolePolicy(
+  new PolicyStatement({
+    actions: ["aws-marketplace:ViewSubscriptions", "aws-marketplace:Subscribe"],
     resources: ["*"],
   })
 );

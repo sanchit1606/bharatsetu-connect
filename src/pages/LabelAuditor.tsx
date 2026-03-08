@@ -212,6 +212,61 @@ export default function LabelAuditor() {
         }
     };
 
+    /** Compress image to stay under API payload limits (e.g. API Gateway 10MB). Returns JPEG base64. */
+    const compressImageForApi = (file: File): Promise<{ base64: string; mediaType: string }> => {
+        return new Promise((resolve, reject) => {
+            const img = new window.Image();
+            const url = URL.createObjectURL(file);
+            img.onload = () => {
+                URL.revokeObjectURL(url);
+                const maxW = 1200;
+                const maxH = 1200;
+                let { width, height } = img;
+                if (width > maxW || height > maxH) {
+                    if (width > height) {
+                        height = Math.round((height * maxW) / width);
+                        width = maxW;
+                    } else {
+                        width = Math.round((width * maxH) / height);
+                        height = maxH;
+                    }
+                }
+                const canvas = document.createElement("canvas");
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext("2d");
+                if (!ctx) {
+                    reject(new Error("Canvas not supported"));
+                    return;
+                }
+                ctx.drawImage(img, 0, 0, width, height);
+                canvas.toBlob(
+                    (blob) => {
+                        if (!blob) {
+                            reject(new Error("Image compression failed"));
+                            return;
+                        }
+                        const reader = new FileReader();
+                        reader.onload = () => {
+                            const dataUrl = reader.result as string;
+                            const base64 = dataUrl.includes(",") ? dataUrl.split(",")[1] ?? "" : dataUrl;
+                            resolve({ base64, mediaType: "image/jpeg" });
+                        };
+                        reader.onerror = () => reject(reader.error);
+                        reader.readAsDataURL(blob);
+                    },
+                    "image/jpeg",
+                    0.82
+                );
+            };
+            img.onerror = () => {
+                URL.revokeObjectURL(url);
+                reject(new Error("Image failed to load"));
+            };
+            img.src = url;
+        });
+    };
+
     const fileToBase64 = (file: File): Promise<string> => {
         return new Promise((resolve, reject) => {
             const reader = new FileReader();
@@ -231,10 +286,17 @@ export default function LabelAuditor() {
 
         if (isBackendConfigured()) {
             try {
-                const imageBase64 = imageFile ? await fileToBase64(imageFile) : undefined;
+                let imageBase64: string | undefined;
+                let imageMediaType = imageFile?.type || "image/jpeg";
+                if (imageFile) {
+                    const compressed = await compressImageForApi(imageFile);
+                    imageBase64 = compressed.base64;
+                    imageMediaType = compressed.mediaType;
+                }
                 const data = await analyzeLabel({
                     ocr_text: ocrData?.text,
                     image_base64: imageBase64,
+                    image_media_type: imageMediaType,
                     query: query.trim(),
                     language,
                 });
@@ -242,7 +304,8 @@ export default function LabelAuditor() {
                 setTimeout(scrollToOutput, 100);
             } catch (err) {
                 console.error("Label analysis error:", err);
-                alert(t("label_auditor_page.error_api"));
+                const message = err instanceof Error ? err.message : String(err);
+                alert(`${t("label_auditor_page.error_api")}\n\nDetails: ${message}`);
             } finally {
                 setIsLoading(false);
             }
@@ -363,17 +426,22 @@ export default function LabelAuditor() {
                         <p className="text-xs text-center text-muted-foreground truncate">{t("label_auditor_page.supported_formats")}</p>
 
                         {previewUrl && (
-                            <button
-                                onClick={handleOCR}
-                                disabled={isOcrLoading}
-                                className="w-full h-11 bg-primary text-primary-foreground rounded-xl font-semibold flex items-center justify-center gap-2 hover:bg-primary/90 transition-all btn-press mt-2 shadow-sm"
-                            >
-                                {isOcrLoading ? (
-                                    <><Loader2 className="w-4 h-4 animate-spin" /> Processing OCR...</>
-                                ) : (
-                                    <><Scan className="w-4 h-4" /> Analyze Text (OCR)</>
-                                )}
-                            </button>
+                            <>
+                                <p className="text-xs text-muted-foreground mt-2">
+                                    Image is sent directly to the AI for analysis. OCR below is optional (to see extracted text).
+                                </p>
+                                <button
+                                    onClick={handleOCR}
+                                    disabled={isOcrLoading}
+                                    className="w-full h-11 bg-secondary text-secondary-foreground rounded-xl font-semibold flex items-center justify-center gap-2 hover:bg-secondary/80 transition-all btn-press mt-2"
+                                >
+                                    {isOcrLoading ? (
+                                        <><Loader2 className="w-4 h-4 animate-spin" /> Processing OCR...</>
+                                    ) : (
+                                        <><Scan className="w-4 h-4" /> Extract text (OCR, optional)</>
+                                    )}
+                                </button>
+                            </>
                         )}
 
                         {ocrData && imageDimensions && (
