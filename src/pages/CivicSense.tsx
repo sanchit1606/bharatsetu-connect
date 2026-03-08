@@ -31,12 +31,6 @@ type AuthoritySuggestion = {
   channels: string[];
 };
 
-type SubmissionOption = {
-  id: string;
-  label: string;
-  description: string;
-};
-
 const classifyIssue = (rawText: string): CivicClassification => {
   const text = rawText.toLowerCase();
 
@@ -211,7 +205,6 @@ const CivicSense: React.FC = () => {
   const [classification, setClassification] = useState<CivicClassification | null>(null);
   const [authority, setAuthority] = useState<AuthoritySuggestion | null>(null);
   const [complaintDraft, setComplaintDraft] = useState("");
-  const [submissionOptions, setSubmissionOptions] = useState<SubmissionOption[]>([]);
   const [copyLabel, setCopyLabel] = useState("Copy complaint text");
 
   const [isRecording, setIsRecording] = useState(false);
@@ -280,29 +273,9 @@ const CivicSense: React.FC = () => {
         authority: auth,
       });
 
-      const options: SubmissionOption[] = [
-        {
-          id: "whatsapp",
-          label: "WhatsApp message",
-          description: "Paste this text into your state/city's official WhatsApp grievance number.",
-        },
-        {
-          id: "email",
-          label: "Email complaint",
-          description: "Copy the subject and body into an email to the relevant authority.",
-        },
-        {
-          id: "portal",
-          label: "Online portal",
-          description:
-            "Use this text in the description box of your state's online civic complaint portal or app.",
-        },
-      ];
-
       setClassification(cls);
       setAuthority(auth);
       setComplaintDraft(draft);
-      setSubmissionOptions(options);
       setIsAnalyzing(false);
     }, 800);
   };
@@ -691,22 +664,9 @@ const CivicSense: React.FC = () => {
                 </div>
 
                 {complaintDraft ? (
-                  <>
-                    <pre className="text-[11px] leading-relaxed text-muted-foreground bg-background rounded-xl border border-border px-3 py-3 max-h-64 overflow-auto whitespace-pre-wrap scrollbar-thin">
-                      {complaintDraft}
-                    </pre>
-                    <div className="grid gap-2 md:grid-cols-3 pt-2">
-                      {submissionOptions.map((opt) => (
-                        <div
-                          key={opt.id}
-                          className="rounded-xl border border-border bg-background p-3 text-[11px] text-muted-foreground"
-                        >
-                          <p className="font-semibold text-foreground mb-1">{opt.label}</p>
-                          <p>{opt.description}</p>
-                        </div>
-                      ))}
-                    </div>
-                  </>
+                  <pre className="text-[11px] leading-relaxed text-muted-foreground bg-background rounded-xl border border-border px-3 py-3 max-h-64 overflow-auto whitespace-pre-wrap scrollbar-thin">
+                    {complaintDraft}
+                  </pre>
                 ) : (
                   <p className="text-xs text-muted-foreground">
                     Your complaint text will appear here, ready to{" "}

@@ -74,15 +74,21 @@ const FeatureSection = ({
                   {id === "gynaecare" && <Flower2 className="w-8 h-8 text-primary" />}
                 </div>
                 <p className="text-sm">
-                  {id === "label-auditor" || id === "civicsense"
+                  {id === "label-auditor" || id === "civicsense" || id === "rights-assistant"
                     ? "Try the live interface"
                     : "Interactive demo coming soon"}
                 </p>
               </div>
             </div>
-            {id === "label-auditor" || id === "civicsense" ? (
+            {id === "label-auditor" || id === "civicsense" || id === "rights-assistant" ? (
               <Link
-                to={id === "label-auditor" ? "/label-auditor" : "/civicsense"}
+                to={
+                  id === "label-auditor"
+                    ? "/label-auditor"
+                    : id === "civicsense"
+                    ? "/civicsense"
+                    : "/rights-assistant"
+                }
                 className="mt-4 w-full h-12 rounded-xl font-semibold hero-gradient-bg text-primary-foreground btn-press flex items-center justify-center text-sm flex-shrink-0"
               >
                 Try It →
