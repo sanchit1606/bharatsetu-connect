@@ -4,8 +4,9 @@
 *Connecting Communities to Information, Resources & Public Services*
 
 ![React](https://img.shields.io/badge/React-20232A?style=flat-square&logo=react&logoColor=61DAFB)
+![AWS](https://img.shields.io/badge/AWS-Amplify%20%7C%20Bedrock%20%7C%20Lambda-FF9900?style=flat-square&logo=amazon-aws&logoColor=white)
+![Anthropic Claude](https://img.shields.io/badge/Anthropic-Claude-CC785C?style=flat-square&logo=anthropic&logoColor=white)
 ![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=flat-square&logo=fastapi&logoColor=white)
-![Google Gemini](https://img.shields.io/badge/Google%20Gemini-8E75B2?style=flat-square&logo=google&logoColor=white)
 ![Python](https://img.shields.io/badge/Python-3776AB?style=flat-square&logo=python&logoColor=white)
 
 ---
@@ -14,7 +15,13 @@
   <img src="./effecrt.gif" alt="effect animation" width="120" height="120" />
 </p>
 
- 
+## Built with
+
+- **Frontend:** React (Vite), TypeScript
+- **AI model:** Anthropic Claude (via Amazon Bedrock)
+- **AWS:** Amplify (Hosting + Gen 2 Backend), Lambda, API Gateway, Amazon Bedrock
+
+---
 
 ## Documentation
 
