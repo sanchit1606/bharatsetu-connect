@@ -8,6 +8,8 @@ import { createWorker } from "tesseract.js";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip as RechartsTooltip } from "recharts";
 import ScrollReveal from "@/components/ScrollReveal";
 import { analyzeLabel, isBackendConfigured, type LabelAnalysisResult } from "@/lib/labelAuditorApi";
+import { fetchSttTranscript, isSttConfigured } from "@/lib/sttApi";
+import { fetchTtsAudio, isTtsConfigured } from "@/lib/ttsApi";
 
 // --- MOCK API DATA ---
 const MOCK_API_RESPONSE = {
@@ -56,6 +58,15 @@ const MOCK_API_RESPONSE = {
 
 const PIE_COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4', '#ec4899', '#94a3b8'];
 
+/** BCP-47 locale for browser Speech Synthesis (TTS). Used for "Listen to Analysis". */
+const TTS_LOCALE: Record<string, string> = {
+    en: "en-IN",
+    hi: "hi-IN",
+    mr: "mr-IN",
+    ta: "ta-IN",
+    te: "te-IN",
+};
+
 export default function LabelAuditor() {
     const { t } = useTranslation();
     const [imageFile, setImageFile] = useState<File | null>(null);
@@ -68,7 +79,10 @@ export default function LabelAuditor() {
     const [language, setLanguage] = useState("en");
 
     const [isRecording, setIsRecording] = useState(false);
+    const [isTranscribing, setIsTranscribing] = useState(false);
     const [recognition, setRecognition] = useState<any>(null);
+    const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+    const chunksRef = useRef<Blob[]>([]);
 
     const [isLoading, setIsLoading] = useState(false);
     const [loadingStep, setLoadingStep] = useState(0);
@@ -76,10 +90,15 @@ export default function LabelAuditor() {
     const [result, setResult] = useState<LabelAnalysisResult | null>(null);
 
     const [isSpeaking, setIsSpeaking] = useState(false);
+    const [isTtsLoading, setIsTtsLoading] = useState(false);
+    const [ttsSource, setTtsSource] = useState<"elevenlabs" | "browser" | null>(null);
+    const [ttsVoices, setTtsVoices] = useState<SpeechSynthesisVoice[]>([]);
     const synth = window.speechSynthesis;
 
     const fileInputRef = useRef<HTMLInputElement>(null);
     const cameraInputRef = useRef<HTMLInputElement>(null);
+    const ttsAudioRef = useRef<HTMLAudioElement | null>(null);
+    const ttsBlobUrlRef = useRef<string | null>(null);
 
     const loadingMessages = [
         t("label_auditor_page.loading_1"),
@@ -87,6 +106,13 @@ export default function LabelAuditor() {
         t("label_auditor_page.loading_3"),
         t("label_auditor_page.loading_4")
     ];
+
+    useEffect(() => {
+        const loadVoices = () => setTtsVoices(synth.getVoices());
+        loadVoices();
+        synth.onvoiceschanged = loadVoices;
+        return () => { synth.onvoiceschanged = null; };
+    }, [synth]);
 
     useEffect(() => {
         // Setup Speech Recognition
@@ -128,6 +154,12 @@ export default function LabelAuditor() {
         };
     }, [previewUrl]);
 
+    useEffect(() => {
+        return () => {
+            if (ttsBlobUrlRef.current) URL.revokeObjectURL(ttsBlobUrlRef.current);
+        };
+    }, []);
+
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
@@ -151,31 +183,121 @@ export default function LabelAuditor() {
         if (cameraInputRef.current) cameraInputRef.current.value = "";
     };
 
-    const toggleRecording = () => {
+    const toggleRecording = async () => {
+        if (isSttConfigured()) {
+            if (isRecording || isTranscribing) {
+                if (mediaRecorderRef.current?.state === "recording") {
+                    mediaRecorderRef.current.stop();
+                }
+                return;
+            }
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                const recorder = new MediaRecorder(stream);
+                mediaRecorderRef.current = recorder;
+                chunksRef.current = [];
+                recorder.ondataavailable = (e) => {
+                    if (e.data.size > 0) chunksRef.current.push(e.data);
+                };
+                recorder.onstop = async () => {
+                    stream.getTracks().forEach((t) => t.stop());
+                    const blob = new Blob(chunksRef.current, { type: recorder.mimeType || "audio/webm" });
+                    mediaRecorderRef.current = null;
+                    setIsRecording(false);
+                    if (blob.size > 0) {
+                        setIsTranscribing(true);
+                        try {
+                            const text = await fetchSttTranscript({ audioBlob: blob, language });
+                            if (text) setQuery((q) => (q ? `${q} ${text}` : text).trim().slice(0, 500));
+                        } finally {
+                            setIsTranscribing(false);
+                        }
+                    }
+                };
+                setQuery("");
+                recorder.start();
+                setIsRecording(true);
+            } catch (err) {
+                console.error("Microphone error:", err);
+                alert("Microphone access is needed for voice input.");
+            }
+            return;
+        }
         if (!recognition) return;
         if (isRecording) {
             recognition.stop();
         } else {
-            // Trying to match language. Default to en-US, but if Hindi is selected we might want hi-IN
-            recognition.lang = language === "en" ? "en-IN" : language === "hi" ? "hi-IN" : "en-IN";
+            recognition.lang = TTS_LOCALE[language] ?? "en-IN";
             setQuery("");
             recognition.start();
             setIsRecording(true);
         }
     };
 
-    const speakAnalysis = () => {
+    const speakAnalysis = async () => {
         if (!result) return;
         if (isSpeaking) {
+            if (ttsAudioRef.current) {
+                ttsAudioRef.current.pause();
+                ttsAudioRef.current = null;
+            }
+            if (ttsBlobUrlRef.current) {
+                URL.revokeObjectURL(ttsBlobUrlRef.current);
+                ttsBlobUrlRef.current = null;
+            }
             synth.cancel();
+            setTtsSource(null);
             setIsSpeaking(false);
             return;
         }
 
+        if (isTtsConfigured()) {
+            setIsTtsLoading(true);
+            try {
+                const url = await fetchTtsAudio({ text: result.ai_response, language });
+                if (url) {
+                    ttsBlobUrlRef.current = url;
+                    const audio = new Audio(url);
+                    ttsAudioRef.current = audio;
+                    audio.onended = () => {
+                        if (ttsBlobUrlRef.current) URL.revokeObjectURL(ttsBlobUrlRef.current);
+                        ttsBlobUrlRef.current = null;
+                        ttsAudioRef.current = null;
+                        setTtsSource(null);
+                        setIsSpeaking(false);
+                    };
+                    audio.onerror = () => {
+                        if (ttsBlobUrlRef.current) URL.revokeObjectURL(ttsBlobUrlRef.current);
+                        ttsBlobUrlRef.current = null;
+                        ttsAudioRef.current = null;
+                        setTtsSource(null);
+                        setIsSpeaking(false);
+                    };
+                    await audio.play();
+                    setTtsSource("elevenlabs");
+                    setIsSpeaking(true);
+                    return;
+                }
+                console.warn("Listen to Analysis: ElevenLabs TTS returned no audio; using device voice. Check Network tab for /tts response.");
+            } catch (err) {
+                console.warn("Listen to Analysis: ElevenLabs TTS failed; using device voice.", err);
+            } finally {
+                setIsTtsLoading(false);
+            }
+        }
+
         const utterance = new SpeechSynthesisUtterance(result.ai_response);
-        utterance.lang = language === "hi" ? "hi-IN" : "en-IN";
-        utterance.onend = () => setIsSpeaking(false);
+        const locale = TTS_LOCALE[language] ?? "en-IN";
+        utterance.lang = locale;
+        const voices = ttsVoices.length > 0 ? ttsVoices : synth.getVoices();
+        const preferred = voices.find((v) => v.lang === locale || v.lang.replace(/_/g, "-").startsWith(locale.slice(0, 2)));
+        if (preferred) utterance.voice = preferred;
+        utterance.onend = () => {
+            setTtsSource(null);
+            setIsSpeaking(false);
+        };
         synth.speak(utterance);
+        setTtsSource("browser");
         setIsSpeaking(true);
     };
 
@@ -338,7 +460,14 @@ export default function LabelAuditor() {
         }
     };
 
-    const getBadgeText = (badge: string) => badge.replace(/_/g, " ");
+    const getBadgeTranslationKey = (badge: string): string => {
+        switch (badge) {
+            case "SAFE_TO_CONSUME": return "label_auditor_page.badge_safe";
+            case "CONSUME_WITH_CAUTION": return "label_auditor_page.badge_caution";
+            case "NOT_RECOMMENDED": return "label_auditor_page.badge_not_recommended";
+            default: return "label_auditor_page.badge_caution";
+        }
+    };
 
     const pieData = result ? [
         { name: "Protein", value: result.nutrition.protein },
@@ -546,15 +675,18 @@ export default function LabelAuditor() {
                         </div>
 
                         <div className="flex flex-col sm:flex-row gap-3 pt-1">
-                            {recognition && (
+                            {(recognition || isSttConfigured()) && (
                                 <button
                                     onClick={toggleRecording}
-                                    className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-medium transition-colors border ${isRecording
-                                        ? "bg-red-500/10 border-red-200 text-red-600 animate-pulse"
-                                        : "bg-background border-border hover:bg-muted text-foreground"
+                                    disabled={isTranscribing}
+                                    className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-medium transition-colors border ${isTranscribing
+                                        ? "bg-muted border-border opacity-80"
+                                        : isRecording
+                                            ? "bg-red-500/10 border-red-200 text-red-600 animate-pulse"
+                                            : "bg-background border-border hover:bg-muted text-foreground"
                                         }`}
                                 >
-                                    {isRecording ? <><Square className="w-4 h-4 fill-current" /> {t("label_auditor_page.voice_recording")}</> : <><Mic className="w-4 h-4" /> {t("label_auditor_page.voice_btn")}</>}
+                                    {isTranscribing ? <><Loader2 className="w-4 h-4 animate-spin" /> Transcribing...</> : isRecording ? <><Square className="w-4 h-4 fill-current" /> {t("label_auditor_page.voice_recording")}</> : <><Mic className="w-4 h-4" /> {t("label_auditor_page.voice_btn")}</>}
                                 </button>
                             )}
 
@@ -573,7 +705,13 @@ export default function LabelAuditor() {
                                 </select>
                             </div>
                         </div>
-                        {recognition && <p className="text-xs text-center text-muted-foreground">{t("label_auditor_page.voice_note")}</p>}
+                        {(recognition || isSttConfigured()) && (
+                            <p className="text-xs text-center text-muted-foreground">
+                                {isSttConfigured()
+                                    ? "Voice input uses ElevenLabs (90+ languages). Speak, then tap again to transcribe."
+                                    : `${t("label_auditor_page.voice_note")} Voice input uses the selected language; Marathi/Tamil/Telugu depend on your browser.`}
+                            </p>
+                        )}
                     </div>
 
                 </div>
@@ -624,13 +762,16 @@ export default function LabelAuditor() {
                             {/* Sub-Section A: Product Summary */}
                             <div className="bg-card border border-border rounded-3xl p-6 sm:p-8 card-elevated flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
                                 <div>
-                                    <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider mb-1">{result.manufacturer || "Unknown Manufacturer"}</p>
-                                    <h2 className="text-2xl sm:text-3xl font-display font-bold text-foreground">{result.product_name}</h2>
-                                    <p className="text-sm text-muted-foreground mt-1">Serving Size: {result.serving_size}</p>
+                                    <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider mb-1">
+                                        {result.manufacturer?.trim() ? result.manufacturer : "Unknown Manufacturer"}
+                                    </p>
+                                    <h2 className="text-2xl sm:text-3xl font-display font-bold text-foreground">
+                                        {result.product_name?.trim() || "Unknown Product"}
+                                    </h2>
+                                    <p className="text-sm text-muted-foreground mt-1">Serving Size: {result.serving_size?.trim() || "—"}</p>
                                 </div>
                                 <div className={`px-5 py-3 rounded-full border flex items-center justify-center text-center font-bold tracking-wide whitespace-nowrap shadow-sm ${getBadgeColor(result.safety_badge)}`}>
-                                    {t(`label_auditor_page.badge_${result.safety_badge.toLowerCase().replace(/_/g, " ")}.badge_`)} {/* Fallback logic omitted due to complex text, just use getBadgeText */}
-                                    {getBadgeText(result.safety_badge)}
+                                    {t(getBadgeTranslationKey(result.safety_badge))}
                                 </div>
                             </div>
 
@@ -719,15 +860,27 @@ export default function LabelAuditor() {
                                         <h3 className="text-xl font-bold font-display">{t("label_auditor_page.analysis_title")}</h3>
                                         <p className="text-sm text-muted-foreground">{t("label_auditor_page.analysis_subtext")}</p>
                                     </div>
-                                    {('speechSynthesis' in window) && (
-                                        <button
-                                            onClick={speakAnalysis}
-                                            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-colors border ${isSpeaking ? 'bg-primary/10 border-primary/30 text-primary' : 'bg-background hover:bg-muted border-border'
-                                                }`}
-                                        >
-                                            {isSpeaking ? <><Square className="w-4 h-4" /> {t("label_auditor_page.stop_listen_btn")}</> : <><Volume2 className="w-4 h-4" /> {t("label_auditor_page.listen_btn")}</>}
-                                        </button>
-                                    )}
+                                    <div className="flex flex-col items-end gap-1">
+                                        {('speechSynthesis' in window) && (
+                                            <button
+                                                onClick={speakAnalysis}
+                                                disabled={isTtsLoading}
+                                                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-colors border ${isSpeaking ? 'bg-primary/10 border-primary/30 text-primary' : isTtsLoading ? 'bg-muted border-border opacity-80' : 'bg-background hover:bg-muted border-border'
+                                                    }`}
+                                            >
+                                                {isTtsLoading ? <><Loader2 className="w-4 h-4 animate-spin" /> Loading...</> : isSpeaking ? <><Square className="w-4 h-4" /> {t("label_auditor_page.stop_listen_btn")}</> : <><Volume2 className="w-4 h-4" /> {t("label_auditor_page.listen_btn")}</>}
+                                            </button>
+                                        )}
+                                        <p className="text-xs text-muted-foreground text-right max-w-[280px]">
+                                            {isSpeaking && ttsSource
+                                                ? ttsSource === "elevenlabs"
+                                                    ? "Playing with ElevenLabs"
+                                                    : "Playing with device voice"
+                                                : isTtsConfigured()
+                                                    ? "Uses ElevenLabs for all Indian languages (en, hi, mr, ta, te)."
+                                                    : "Uses device voice. Add language in system settings if Marathi/Tamil/Telugu don't play."}
+                                        </p>
+                                    </div>
                                 </div>
 
                                 <div className="bg-background rounded-2xl p-6 border border-border/50 text-foreground/90 text-lg sm:text-xl leading-relaxed font-sans shadow-inner mb-8">

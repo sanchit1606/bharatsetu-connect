@@ -1,10 +1,11 @@
 import React from "react";
-import { ArrowRight, Mic, MicOff } from "lucide-react";
+import { ArrowRight, Loader2, Mic, MicOff } from "lucide-react";
 import SuggestedQuestions from "./SuggestedQuestions";
 
 type Props = {
   questionText: string;
   isRecording: boolean;
+  isQuestionTranscribing?: boolean;
   onQuestionChange: (value: string) => void;
   onAsk: () => void;
   onToggleRecording: () => void;
@@ -14,6 +15,7 @@ type Props = {
 export default function QuestionPanel({
   questionText,
   isRecording,
+  isQuestionTranscribing = false,
   onQuestionChange,
   onAsk,
   onToggleRecording,
@@ -36,14 +38,18 @@ export default function QuestionPanel({
         <button
           type="button"
           onClick={onToggleRecording}
-          className="absolute right-3 bottom-3 inline-flex h-8 items-center gap-1.5 rounded-full border border-border bg-background/80 px-3 text-[11px] font-medium hover:bg-muted"
+          disabled={isQuestionTranscribing}
+          className="absolute right-3 bottom-3 inline-flex h-8 items-center gap-1.5 rounded-full border border-border bg-background/80 px-3 text-[11px] font-medium hover:bg-muted disabled:opacity-50"
+          title={isQuestionTranscribing ? "Transcribing…" : isRecording ? "Stop" : "Voice input (ElevenLabs when configured)"}
         >
-          {isRecording ? (
+          {isQuestionTranscribing ? (
+            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+          ) : isRecording ? (
             <MicOff className="h-3.5 w-3.5" />
           ) : (
             <Mic className="h-3.5 w-3.5" />
           )}
-          {isRecording ? "Stop" : "Voice"}
+          {isQuestionTranscribing ? "…" : isRecording ? "Stop" : "Voice"}
         </button>
       </div>
 

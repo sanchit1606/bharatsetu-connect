@@ -1,28 +1,46 @@
 import React, { useRef } from "react";
-import { FileText, Upload, X, Loader2, ArrowRight, Image as ImageIcon } from "lucide-react";
+import { FileText, Upload, X, Loader2, ArrowRight, Image as ImageIcon, Scan, Mic, MicOff } from "lucide-react";
 
 type Props = {
   documentFile: File | null;
-  documentPaste: string;
+  previewUrl: string | null;
+  previewDimensions: { width: number; height: number } | null;
+  outputLanguage: string;
+  onOutputLanguageChange: (value: string) => void;
+  outputLangOptions: { value: string; label: string }[];
   isOcrLoading: boolean;
   isExplainLoading: boolean;
   onFileChange: (file: File | null) => void;
-  onPasteChange: (value: string) => void;
   onExtractText: () => void;
   onExplain: () => void;
   canExplain: boolean;
+  documentQuery: string;
+  onDocumentQueryChange: (value: string) => void;
+  isDocumentRecording: boolean;
+  isDocumentTranscribing?: boolean;
+  onToggleDocumentRecording: () => void;
+  hasVoiceInput: boolean;
 };
 
 export default function DocumentPanel({
   documentFile,
-  documentPaste,
+  previewUrl,
+  previewDimensions,
+  outputLanguage,
+  onOutputLanguageChange,
+  outputLangOptions,
   isOcrLoading,
   isExplainLoading,
   onFileChange,
-  onPasteChange,
   onExtractText,
   onExplain,
   canExplain,
+  documentQuery,
+  onDocumentQueryChange,
+  isDocumentRecording,
+  isDocumentTranscribing = false,
+  onToggleDocumentRecording,
+  hasVoiceInput,
 }: Props) {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -42,67 +60,125 @@ export default function DocumentPanel({
     onFileChange(null);
   };
 
+  const isPdf = documentFile?.type === "application/pdf" || documentFile?.name?.toLowerCase().endsWith(".pdf");
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <h2 className="font-display text-lg font-semibold text-foreground">
-        Upload or paste document
+        Document & details
       </h2>
 
-      <div className="space-y-2">
-        <label className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
-          <ImageIcon className="h-3.5 w-3.5 text-primary" />
-          Image of document (photo or scan)
-        </label>
-        <label className="flex min-h-[100px] cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-border bg-muted/30 px-4 py-5 hover:border-primary/40 hover:bg-muted/50">
+      {/* Upload area — Lab Report style */}
+      {!documentFile ? (
+        <label className="flex flex-col items-center justify-center w-full min-h-[120px] border-2 border-dashed border-border rounded-xl cursor-pointer bg-muted/30 hover:bg-muted/50 hover:border-primary/40 transition-colors px-4 py-5">
+          <Upload className="w-8 h-8 text-muted-foreground mb-2" />
+          <span className="text-sm text-muted-foreground text-center">
+            Drop image or PDF here, or click to browse
+          </span>
+          <span className="text-xs text-muted-foreground mt-1">Image, PDF, DOC/DOCX</span>
           <input
             ref={fileInputRef}
             type="file"
-            accept="image/*"
-            className="pointer-events-none absolute h-0 w-0 opacity-0"
+            accept="image/*,.pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            className="hidden"
             onChange={handleFileInputChange}
           />
-          {documentFile ? (
-            <div className="flex w-full max-w-sm items-center gap-2">
-              <FileText className="h-5 w-5 shrink-0 text-primary" />
-              <span className="truncate text-sm font-medium">{documentFile.name}</span>
-              <button
-                type="button"
-                onClick={removeFile}
-                className="ml-auto rounded p-1 hover:bg-muted"
-                aria-label="Remove file"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            </div>
-          ) : (
-            <>
-              <Upload className="h-6 w-6 text-primary" />
-              <span className="text-sm text-muted-foreground">Drop image or browse</span>
-            </>
-          )}
         </label>
-        {documentFile && (
-          <button
-            type="button"
-            onClick={onExtractText}
-            disabled={isOcrLoading}
-            className="inline-flex items-center gap-2 text-sm font-medium text-primary hover:underline"
+      ) : (
+        <div className="space-y-2">
+          <div
+            className={`relative rounded-xl overflow-hidden border border-border bg-black/5 ${!previewDimensions ? "min-h-[100px]" : ""}`}
+            style={previewDimensions ? { aspectRatio: `${previewDimensions.width} / ${previewDimensions.height}` } : undefined}
           >
-            {isOcrLoading && <Loader2 className="h-4 w-4 animate-spin" />}
-            {isOcrLoading ? "Extracting text…" : "Extract text from image"}
-          </button>
-        )}
+            {previewUrl ? (
+              <>
+                {previewDimensions ? (
+                  <img
+                    src={previewUrl}
+                    alt="Document preview"
+                    className="w-full h-full object-contain"
+                  />
+                ) : (
+                  <img
+                    src={previewUrl}
+                    alt="Document preview"
+                    className="w-full h-full object-contain max-h-48 min-h-[100px]"
+                  />
+                )}
+              </>
+            ) : (
+              <div className="flex flex-col items-center justify-center py-6 gap-2">
+                <FileText className="h-10 w-10 text-primary" />
+                <span className="text-sm font-medium text-foreground truncate max-w-full px-2">{documentFile.name}</span>
+              </div>
+            )}
+            {isPdf && (
+              <div className="absolute top-2 left-2 px-2 py-1 rounded bg-primary/90 text-primary-foreground text-xs font-medium flex items-center gap-1">
+                <ImageIcon className="w-3 h-3" /> PDF
+              </div>
+            )}
+            <button
+              type="button"
+              onClick={removeFile}
+              className="absolute top-2 right-2 w-8 h-8 rounded-lg bg-background/90 border border-border flex items-center justify-center text-muted-foreground hover:text-foreground"
+              aria-label="Remove"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+          <div className="flex justify-center">
+            <button
+              type="button"
+              onClick={onExtractText}
+              disabled={isOcrLoading}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 text-sm font-medium disabled:opacity-50 transition-colors"
+            >
+              {isOcrLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Scan className="w-4 h-4" />}
+              {isOcrLoading ? "Running OCR…" : "Run OCR"}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Language dropdown */}
+      <div className="space-y-2">
+        <label className="block text-sm font-medium text-foreground">Simplify document in</label>
+        <select
+          value={outputLanguage}
+          onChange={(e) => onOutputLanguageChange(e.target.value)}
+          className="h-10 w-full rounded-xl border border-border bg-background px-3 text-sm text-foreground"
+        >
+          {outputLangOptions.map((opt) => (
+            <option key={opt.value} value={opt.value}>{opt.label}</option>
+          ))}
+        </select>
       </div>
 
+      {/* User query: type or speak */}
       <div className="space-y-2">
-        <label className="text-xs font-medium text-muted-foreground">Or paste document text</label>
-        <textarea
-          value={documentPaste}
-          onChange={(e) => onPasteChange(e.target.value)}
-          placeholder="Paste text from a rental agreement, notice, contract, or any document you want explained…"
-          rows={6}
-          className="w-full resize-none rounded-xl border border-border bg-background px-3 py-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
-        />
+        <label className="block text-sm font-medium text-foreground">Your query (optional)</label>
+        <p className="text-xs text-muted-foreground">Ask something about the document; the summary will use the document and your question.</p>
+        <div className="relative">
+          <textarea
+            value={documentQuery}
+            onChange={(e) => onDocumentQueryChange(e.target.value)}
+            placeholder="e.g. What are my main obligations? Is there a notice period?"
+            rows={4}
+            className="w-full resize-none rounded-xl border border-border bg-background px-3 py-3 pr-12 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
+          />
+          {hasVoiceInput && (
+            <button
+              type="button"
+              onClick={onToggleDocumentRecording}
+              disabled={isDocumentTranscribing}
+              className="absolute right-3 bottom-3 inline-flex h-8 items-center gap-1.5 rounded-full border border-border bg-background/80 px-3 text-[11px] font-medium hover:bg-muted disabled:opacity-50"
+              title={isDocumentTranscribing ? "Transcribing…" : isDocumentRecording ? "Stop" : "Voice input (ElevenLabs when configured)"}
+            >
+              {isDocumentTranscribing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : isDocumentRecording ? <MicOff className="h-3.5 w-3.5" /> : <Mic className="h-3.5 w-3.5" />}
+              {isDocumentTranscribing ? "…" : isDocumentRecording ? "Stop" : "Voice"}
+            </button>
+          )}
+        </div>
       </div>
 
       <button

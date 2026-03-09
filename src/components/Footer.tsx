@@ -14,7 +14,7 @@ const Footer = () => {
 
         {/* Footer content */}
         <div className="container-content px-4 sm:px-6 lg:px-8 pb-10">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-10 lg:gap-16 mb-10">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-10 lg:gap-16 mb-10">
             {/* Brand */}
             <div>
               <div className="flex items-center gap-2 mb-4">
@@ -76,17 +76,6 @@ const Footer = () => {
                   </li>
                 ))}
               </ul>
-            </div>
-
-            {/* Built On */}
-            <div>
-              <h4 className="font-display font-semibold text-foreground mb-4">Built On</h4>
-              <p className="text-sm text-muted-foreground leading-relaxed mb-4">
-                Powered by open-source AI and built for scale on AMD Developer Cloud.
-              </p>
-              <span className="inline-flex items-center gap-1 text-xs bg-accent/10 text-accent px-3 py-1.5 rounded-full font-medium">
-                Built for AMD Slingshot 2026
-              </span>
             </div>
           </div>
         </div>

@@ -3,9 +3,19 @@ import { Stack } from "aws-cdk-lib";
 import { AuthorizationType, Cors, LambdaIntegration, RestApi } from "aws-cdk-lib/aws-apigateway";
 import { PolicyStatement } from "aws-cdk-lib/aws-iam";
 import { analyzeLabel } from "./functions/analyze-label/resource";
+import { analyzeLabReport } from "./functions/analyze-lab-report/resource";
+import { civicSense } from "./functions/civic-sense/resource";
+import { explainDocument } from "./functions/explain-document/resource";
+import { stt } from "./functions/stt/resource";
+import { tts } from "./functions/tts/resource";
 
 const backend = defineBackend({
   analyzeLabel,
+  analyzeLabReport,
+  civicSense,
+  explainDocument,
+  tts,
+  stt,
 });
 
 const apiStack = backend.createStack("label-auditor-api");
@@ -27,7 +37,42 @@ analyzeResource.addMethod(
   new LambdaIntegration(backend.analyzeLabel.resources.lambda),
   { authorizationType: AuthorizationType.NONE }
 );
-// OPTIONS is added automatically by defaultCorsPreflightOptions; do not add it again or you get duplicate construct error
+
+const ttsResource = restApi.root.addResource("tts");
+ttsResource.addMethod(
+  "POST",
+  new LambdaIntegration(backend.tts.resources.lambda),
+  { authorizationType: AuthorizationType.NONE }
+);
+
+const sttResource = restApi.root.addResource("stt");
+sttResource.addMethod(
+  "POST",
+  new LambdaIntegration(backend.stt.resources.lambda),
+  { authorizationType: AuthorizationType.NONE }
+);
+
+const civicSenseResource = restApi.root.addResource("civic-sense");
+civicSenseResource.addMethod(
+  "POST",
+  new LambdaIntegration(backend.civicSense.resources.lambda),
+  { authorizationType: AuthorizationType.NONE }
+);
+
+const analyzeLabReportResource = restApi.root.addResource("analyze-lab-report");
+analyzeLabReportResource.addMethod(
+  "POST",
+  new LambdaIntegration(backend.analyzeLabReport.resources.lambda),
+  { authorizationType: AuthorizationType.NONE }
+);
+
+const explainDocumentResource = restApi.root.addResource("explain-document");
+explainDocumentResource.addMethod(
+  "POST",
+  new LambdaIntegration(backend.explainDocument.resources.lambda),
+  { authorizationType: AuthorizationType.NONE }
+);
+// OPTIONS is added automatically by defaultCorsPreflightOptions
 
 backend.analyzeLabel.resources.lambda.addToRolePolicy(
   new PolicyStatement({
@@ -35,8 +80,49 @@ backend.analyzeLabel.resources.lambda.addToRolePolicy(
     resources: ["*"],
   })
 );
+backend.civicSense.resources.lambda.addToRolePolicy(
+  new PolicyStatement({
+    actions: ["bedrock:InvokeModel"],
+    resources: ["*"],
+  })
+);
+backend.analyzeLabReport.resources.lambda.addToRolePolicy(
+  new PolicyStatement({
+    actions: ["bedrock:InvokeModel"],
+    resources: ["*"],
+  })
+);
+backend.explainDocument.resources.lambda.addToRolePolicy(
+  new PolicyStatement({
+    actions: ["bedrock:InvokeModel"],
+    resources: ["*"],
+  })
+);
+
+if (process.env.ELEVENLABS_API_KEY) {
+  backend.tts.resources.lambda.addEnvironment("ELEVENLABS_API_KEY", process.env.ELEVENLABS_API_KEY);
+  backend.stt.resources.lambda.addEnvironment("ELEVENLABS_API_KEY", process.env.ELEVENLABS_API_KEY);
+}
 // Required for first-time model enablement / Marketplace-backed models in some regions
 backend.analyzeLabel.resources.lambda.addToRolePolicy(
+  new PolicyStatement({
+    actions: ["aws-marketplace:ViewSubscriptions", "aws-marketplace:Subscribe"],
+    resources: ["*"],
+  })
+);
+backend.civicSense.resources.lambda.addToRolePolicy(
+  new PolicyStatement({
+    actions: ["aws-marketplace:ViewSubscriptions", "aws-marketplace:Subscribe"],
+    resources: ["*"],
+  })
+);
+backend.analyzeLabReport.resources.lambda.addToRolePolicy(
+  new PolicyStatement({
+    actions: ["aws-marketplace:ViewSubscriptions", "aws-marketplace:Subscribe"],
+    resources: ["*"],
+  })
+);
+backend.explainDocument.resources.lambda.addToRolePolicy(
   new PolicyStatement({
     actions: ["aws-marketplace:ViewSubscriptions", "aws-marketplace:Subscribe"],
     resources: ["*"],

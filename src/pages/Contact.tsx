@@ -101,12 +101,6 @@ const Contact = () => {
                     ))}
                   </div>
                 </div>
-                <div className="bg-card rounded-2xl p-6 card-elevated">
-                  <span className="text-xs font-semibold text-accent bg-accent/10 px-3 py-1.5 rounded-full">Built for AMD Slingshot 2026</span>
-                  <p className="text-sm text-muted-foreground mt-3 leading-relaxed">
-                    BharatSetu was built for the AMD Slingshot 2026 hackathon, demonstrating how AI can serve public good at scale using open-source tools on AMD infrastructure.
-                  </p>
-                </div>
                 <span className="inline-flex items-center gap-1 text-xs bg-primary/10 text-primary px-3 py-1.5 rounded-full font-medium">
                   Made in India 🇮🇳
                 </span>

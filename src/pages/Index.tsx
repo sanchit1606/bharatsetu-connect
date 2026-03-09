@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { ChevronDown, Package, Scale, Building2, Heart, ScanSearch, Megaphone, ShieldCheck, Microscope, Flower2, Lock, Globe, Smartphone, Zap, ArrowRight } from "lucide-react";
+import { ChevronDown, Package, Scale, Building2, Heart, ScanSearch, Megaphone, ShieldCheck, Microscope, Flower2, Lock, Globe, Zap, ArrowRight } from "lucide-react";
 import ScrollReveal from "@/components/ScrollReveal";
 import StatCounter from "@/components/StatCounter";
 import WebGLShader from "@/components/WebGLShader";
@@ -49,13 +49,6 @@ const steps = [
   { num: "01", title: "Speak or Type", desc: "Use your voice or type in Hindi, English, or your regional language. No forms. No jargon." },
   { num: "02", title: "AI Understands", desc: "Our AI reads, analyzes, and cross-references trusted sources — FSSAI, WHO, IndiaCode — instantly." },
   { num: "03", title: "You Decide", desc: "Get clear, personalized, actionable information. In your language. On your phone." },
-];
-
-const trustBadges = [
-  { icon: Lock, label: "Zero Data Stored" },
-  { icon: Globe, label: "10+ Languages" },
-  { icon: Smartphone, label: "Works on Any Phone" },
-  { icon: Zap, label: "Free Forever" },
 ];
 
 const personas = [
@@ -162,9 +155,7 @@ const Index = () => {
               {[
                 { icon: ScanSearch, anchor: "label-auditor", prefix: "f1" },
                 { icon: Megaphone, anchor: "civicsense", prefix: "f2" },
-                { icon: ShieldCheck, anchor: "rights-assistant", prefix: "f3" },
-                { icon: Microscope, anchor: "lab-analyzer", prefix: "f4" },
-                { icon: Flower2, anchor: "gynaecare", prefix: "f5" }
+                { icon: ShieldCheck, anchor: "rights-assistant", prefix: "f3" }
               ].map((f, i) => (
                 <ScrollReveal key={f.anchor} delay={i * 80}>
                   <Link to={`/features#${f.anchor}`} className="block bg-card/30 backdrop-blur-md rounded-2xl p-6 lg:p-8 card-elevated h-full group border border-white/5 hover:bg-card/40 transition-colors">
@@ -180,6 +171,29 @@ const Index = () => {
                   </Link>
                 </ScrollReveal>
               ))}
+              {/* Row 2: Lab Report Analyzer + GynaeCare — full-width wrapper, flex center, same card size as row 1 */}
+              <ScrollReveal delay={320} className="col-span-1 sm:col-span-2 lg:col-span-3 flex flex-wrap justify-center gap-4 lg:gap-6">
+                {[
+                  { icon: Microscope, anchor: "lab-analyzer", prefix: "f4" },
+                  { icon: Flower2, anchor: "gynaecare", prefix: "f5" }
+                ].map((f, i) => (
+                  <Link
+                    key={f.anchor}
+                    to={`/features#${f.anchor}`}
+                    className="block w-full sm:w-[calc(50%-0.5rem)] lg:w-[calc((100%-3rem)/3)] bg-card/30 backdrop-blur-md rounded-2xl p-6 lg:p-8 card-elevated h-full group border border-white/5 hover:bg-card/40 transition-colors"
+                  >
+                    <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
+                      <f.icon className="w-6 h-6 text-primary" />
+                    </div>
+                    <h3 className="font-display font-bold text-lg text-foreground mb-1">{t(`features_snapshot.${f.prefix}_name`)}</h3>
+                    <p className="text-sm font-medium text-primary mb-3">{t(`features_snapshot.${f.prefix}_tagline`)}</p>
+                    <p className="text-sm text-muted-foreground leading-relaxed mb-4">{t(`features_snapshot.${f.prefix}_desc`)}</p>
+                    <span className="text-sm font-semibold text-primary inline-flex items-center gap-1 group-hover:gap-2 transition-all">
+                      {t("features_snapshot.see_how")} <ArrowRight className="w-3.5 h-3.5" />
+                    </span>
+                  </Link>
+                ))}
+              </ScrollReveal>
             </div>
           </div>
         </section>
@@ -206,22 +220,6 @@ const Index = () => {
                 </ScrollReveal>
               ))}
             </div>
-            {/* Trust badges */}
-            <ScrollReveal delay={400}>
-              <div className="flex flex-wrap items-center justify-center gap-6 mt-14">
-                {[
-                  { icon: Lock, titleKey: "trust_zero_data" },
-                  { icon: Globe, titleKey: "trust_languages" },
-                  { icon: Smartphone, titleKey: "trust_phone" },
-                  { icon: Zap, titleKey: "trust_free" }
-                ].map((b) => (
-                  <div key={b.titleKey} className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <b.icon className="w-4 h-4 text-primary" />
-                    <span>{t(`how_it_works.${b.titleKey}`)}</span>
-                  </div>
-                ))}
-              </div>
-            </ScrollReveal>
           </div>
         </section>
 
