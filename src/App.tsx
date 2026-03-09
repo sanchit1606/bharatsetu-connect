@@ -26,6 +26,7 @@ const ScrollToTop = () => {
 };
 
 import LabelAuditor from "./pages/LabelAuditor";
+import LabReportAnalyzer from "./pages/LabReportAnalyzer";
 
 const AnimatedRoutes = () => {
   const location = useLocation();
@@ -47,6 +48,7 @@ const AnimatedRoutes = () => {
           <Route path="/civicsense" element={<CivicSense />} />
           <Route path="/rights-assistant" element={<RightsAssistant />} />
           <Route path="/gynaecare" element={<GynaeCare />} />
+          <Route path="/lab-report" element={<LabReportAnalyzer />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </motion.div>

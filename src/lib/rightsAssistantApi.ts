@@ -1,5 +1,6 @@
 /**
- * Rights Assistant — FAQ matching and document explanation (mock / would be RAG/API in production).
+ * Rights Assistant — FAQ matching and document explanation.
+ * Document explain calls backend when VITE_API_URL is set; otherwise uses mock.
  */
 
 export type ExplanationResult = {
@@ -8,6 +9,62 @@ export type ExplanationResult = {
   source: string;
   nextSteps: string[];
 };
+
+function getBaseUrl(): string {
+  const env = import.meta.env.VITE_API_URL;
+  if (env?.trim()) return env.replace(/\/$/, "");
+  return "";
+}
+
+export function isRightsExplainConfigured(): boolean {
+  return Boolean(getBaseUrl());
+}
+
+export interface ExplainDocumentRequest {
+  document_text: string;
+  user_query?: string;
+  output_language?: string;
+}
+
+/**
+ * Send document text and optional user query to backend; returns generated summary.
+ * Backend should return { summary, rights, source, nextSteps } in the selected language.
+ */
+export async function explainDocument(
+  payload: ExplainDocumentRequest
+): Promise<ExplanationResult> {
+  const baseUrl = getBaseUrl();
+  if (!baseUrl) {
+    throw new Error("VITE_API_URL is not set. Add it to .env or Amplify env.");
+  }
+
+  const res = await fetch(`${baseUrl}/explain-document`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+
+  if (!res.ok) {
+    const text = await res.text();
+    let message = text || `Explain failed: ${res.status}`;
+    try {
+      const json = JSON.parse(text) as { error?: string; message?: string };
+      if (json.message) message = json.message;
+      else if (json.error) message = `${json.error}${json.message ? `: ${json.message}` : ""}`;
+    } catch {
+      // use text as-is
+    }
+    throw new Error(message);
+  }
+
+  const data = (await res.json()) as ExplanationResult;
+  return {
+    summary: data.summary ?? "",
+    rights: Array.isArray(data.rights) ? data.rights : [],
+    source: data.source ?? "Backend",
+    nextSteps: Array.isArray(data.nextSteps) ? data.nextSteps : [],
+  };
+}
 
 export type QaAnswer = { answer: string; source: string };
 
@@ -65,10 +122,18 @@ export function matchQuestion(query: string): QaAnswer | null {
   };
 }
 
-export function mockExplainDocument(text: string): ExplanationResult {
-  const trimmed = text.trim().slice(0, 500);
+export function mockExplainDocument(
+  text: string,
+  userQuery?: string,
+  _outputLanguage?: string
+): ExplanationResult {
+  const hasQuery = Boolean(userQuery?.trim());
+  const summaryIntro = hasQuery
+    ? "Based on your document and your question, here is a simplified summary. "
+    : "";
   return {
     summary:
+      summaryIntro +
       "This document has been simplified for easier understanding. Key terms and obligations are summarised below. This is illustrative; for legal certainty, refer to the full document and a lawyer if needed.",
     rights: [
       "Right to receive a copy of the document you sign",

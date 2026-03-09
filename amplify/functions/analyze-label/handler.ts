@@ -1,13 +1,13 @@
 import type { APIGatewayProxyHandler } from "aws-lambda";
 import {
   BedrockRuntimeClient,
-  InvokeModelCommand,
+  ConverseCommand,
 } from "@aws-sdk/client-bedrock-runtime";
 
 const client = new BedrockRuntimeClient({ region: process.env.AWS_REGION ?? "ap-south-1" });
 
-/** Nova Lite inference profile for on-demand (ap-south-1). ID: apac.amazon.nova-lite-v1:0; ARN format: arn:aws:bedrock:ap-south-1:ACCOUNT:inference-profile/apac.amazon.nova-lite-v1:0 */
-const MODEL_ID = process.env.BEDROCK_MODEL_ID ?? "apac.amazon.nova-lite-v1:0";
+/** Gemma 3 27B IT (multimodal). Override with BEDROCK_MODEL_ID. Available in ap-south-1; enable in Bedrock → Model access. */
+const MODEL_ID = process.env.BEDROCK_MODEL_ID ?? "google.gemma-3-27b-it";
 
 const CORS_HEADERS = {
   "Access-Control-Allow-Origin": "*",
@@ -23,8 +23,8 @@ interface AnalyzeRequest {
   language: string;
 }
 
-/** Map MIME type to Nova image format (jpeg, png, gif, webp). */
-function toNovaImageFormat(mediaType: string): string {
+/** Converse API image format: jpeg | png | gif | webp. */
+function toConverseImageFormat(mediaType: string): "jpeg" | "png" | "gif" | "webp" {
   if (/^image\/(jpeg|jpg)$/i.test(mediaType)) return "jpeg";
   if (/^image\/png$/i.test(mediaType)) return "png";
   if (/^image\/gif$/i.test(mediaType)) return "gif";
@@ -32,18 +32,19 @@ function toNovaImageFormat(mediaType: string): string {
   return "jpeg";
 }
 
-/** Build Nova user message content: image (if provided) + text. */
-function buildNovaMessageContent(
+/** Build Converse API message content: image (if provided) + text. Image bytes must be Uint8Array. */
+function buildConverseContent(
   imageBase64: string | undefined,
   imageMediaType: string,
   textPrompt: string
-): Array<{ image?: { format: string; source: { bytes: string } }; text?: string }> {
-  const content: Array<{ image?: { format: string; source: { bytes: string } }; text?: string }> = [];
+): Array<{ image?: { format: "jpeg" | "png" | "gif" | "webp"; source: { bytes: Uint8Array } }; text?: string }> {
+  const content: Array<{ image?: { format: "jpeg" | "png" | "gif" | "webp"; source: { bytes: Uint8Array } }; text?: string }> = [];
   if (imageBase64?.trim()) {
+    const bytes = new Uint8Array(Buffer.from(imageBase64.trim(), "base64"));
     content.push({
       image: {
-        format: toNovaImageFormat(imageMediaType),
-        source: { bytes: imageBase64.trim() },
+        format: toConverseImageFormat(imageMediaType),
+        source: { bytes },
       },
     });
   }
@@ -89,12 +90,16 @@ export const handler: APIGatewayProxyHandler = async (event) => {
   const lang = (language ?? "en").toLowerCase();
   const userQuery = query.trim();
 
+  const responseLanguageName =
+    ({ en: "English", hi: "Hindi", mr: "Marathi", ta: "Tamil", te: "Telugu" } as Record<string, string>)[lang] ?? "English";
+
   const instruction = hasImage
-    ? "Look at the product label image attached and the user query below. Extract all visible information (product name, manufacturer, nutrition facts, ingredients, claims) from the image. Then answer the user's health/context question based on the label and respond with a valid JSON object only (no markdown, no extra text)."
-    : "You are a food and cosmetics label analyst for Indian consumers (FSSAI-aware). Use the label text and user query below to produce the response.";
+    ? "You are a label analyst for Indian consumers. (1) From the product label image, extract product name, manufacturer, serving size, nutrition facts (with units, e.g. per 100g or per serving), ingredients, allergens, and any health claims. (2) Read the user's question carefully—they may ask 'can I use this product?' or mention age, health conditions (e.g. diabetes, allergy, heart issue), or diet goals. (3) Give a direct recommendation: whether they should use the product, use with caution, or avoid it—and explain WHY using specific numbers and facts from the label (e.g. 'this has 21g sugar per 50g serving, which is too high for someone with diabetes'). Always cite label data to justify your answer. Respond with a valid JSON object only (no markdown, no code fence)."
+    : "You are a food and cosmetics label analyst for Indian consumers (FSSAI-aware). Use the label text and user query below. Give a direct recommendation (use / use with caution / avoid) and explain why using specific data from the label. Respond with a valid JSON object only (no markdown, no code fence).";
 
   const prompt = `${instruction}
-Respond with this exact JSON structure only:
+
+Respond with this exact JSON structure only (no markdown, no code fence):
 {
   "product_name": "string",
   "manufacturer": "string",
@@ -102,17 +107,23 @@ Respond with this exact JSON structure only:
   "safety_badge": "SAFE_TO_CONSUME" | "CONSUME_WITH_CAUTION" | "NOT_RECOMMENDED",
   "nutrition": { "protein": number, "carbohydrates": number, "sugar": number, "total_fat": number, "saturated_fat": number, "dietary_fiber": number, "sodium": number, "other": number },
   "daily_limits": { "protein": 50, "carbohydrates": 300, "sugar": 50, "total_fat": 65, "saturated_fat": 20, "dietary_fiber": 25, "sodium": 2300 },
-  "ai_response": "string (detailed analysis in the user's language, default ${lang === "hi" ? "Hindi" : "English"})",
+  "ai_response": "string (see rules below)",
   "key_concerns": [{"type": "warning"|"ok", "title": "string", "detail": "string"}],
   "false_claims": [{"claim": "string", "flag": "MISLEADING"|"ACCURATE"|"UNVERIFIED", "explanation": "string"}]
 }
-Infer nutrition and daily_limits from the label where possible; use 0 for missing values. Keep ai_response concise and helpful.
+
+Rules for ai_response (write in ${responseLanguageName} only):
+- Directly answer the user's question with a clear recommendation: e.g. "आपको इस उत्पाद का उपयोग नहीं करना चाहिए" / "use with caution" / "safe to use in moderation".
+- MUST include specific data from the label to justify your answer: quote numbers (sugar, fat, sodium per serving or per 100g), serving size, allergens, or ingredients that support your recommendation. Example: "इसमें 21g चीनी प्रति 50g है, जो मधुमेह वालों के लिए अधिक है."
+- If the user implies a health condition (diabetes, allergy, weight, age), tailor the answer: explain why the product is or isn’t suitable for that context using label facts.
+- Suggest consulting a doctor when relevant (e.g. existing condition or uncertainty). Keep 2–4 short paragraphs; no generic filler—every sentence should add information or justification from the label.
+Rules: Infer nutrition from the label; use 0 for missing values. For "other" in nutrition use 0–20 for residual only. Output only the JSON object.
 ${labelText ? `\nLabel text (if any):\n${labelText}\n` : ""}
 User query: ${userQuery}
 
 Respond with only the JSON object.`;
 
-  const messageContent = buildNovaMessageContent(
+  const content = buildConverseContent(
     image_base64,
     image_media_type ?? "image/jpeg",
     prompt
@@ -120,29 +131,23 @@ Respond with only the JSON object.`;
 
   try {
     const response = await client.send(
-      new InvokeModelCommand({
+      new ConverseCommand({
         modelId: MODEL_ID,
-        contentType: "application/json",
-        accept: "application/json",
-        body: JSON.stringify({
-          schemaVersion: "messages-v1",
-          messages: [{ role: "user", content: messageContent }],
-          inferenceConfig: { maxTokens: 2048, temperature: 0.3, topP: 0.9, topK: 50 },
-        }),
+        messages: [{ role: "user", content: content as import("@aws-sdk/client-bedrock-runtime").ContentBlock[] }],
+        inferenceConfig: {
+          maxTokens: 2048,
+          temperature: 0.2,
+          topP: 0.85,
+        },
       })
     );
 
-    const rawBody = response.body;
-    if (!rawBody) {
-      throw new Error("Empty Bedrock response");
-    }
-    const text = new TextDecoder().decode(rawBody);
-    const parsed = JSON.parse(text);
+    const messageContent = response.output?.message?.content ?? [];
+    const textBlock = messageContent.find((b: { text?: string }) => typeof b?.text === "string");
     const outputText =
-      parsed?.output?.message?.content?.[0]?.text ??
-      parsed?.content?.[0]?.text ??
-      parsed?.completion ??
-      text;
+      textBlock?.text ??
+      (messageContent[0] as { text?: string } | undefined)?.text ??
+      "";
 
     let result: Record<string, unknown>;
     try {

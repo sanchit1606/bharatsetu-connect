@@ -59,7 +59,7 @@ export default function LanguageSelector() {
                             <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">{t("settings.language_label", "Select Language")}</span>
                         </div>
 
-                        <div className="max-h-[220px] overflow-y-auto scrollbar-thin scrollbar-thumb-muted">
+                        <div className="max-h-[220px] overflow-y-auto scrollbar-theme">
                             {languages.map((lang) => (
                                 <button
                                     key={lang.code}

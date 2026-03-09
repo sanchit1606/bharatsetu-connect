@@ -203,4 +203,32 @@
   .animate-bounce-subtle {
     animation: bounce-subtle 2s ease-in-out infinite;
   }
+
+  /* Scrollbar that follows current theme (light/dark) */
+  .scrollbar-theme {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--muted-foreground) / 0.6) hsl(var(--border));
+  }
+  .scrollbar-theme::-webkit-scrollbar {
+    width: 6px;
+  }
+  .scrollbar-theme::-webkit-scrollbar-track {
+    background: hsl(var(--border));
+  }
+  .scrollbar-theme::-webkit-scrollbar-thumb {
+    background: hsl(var(--muted-foreground) / 0.6);
+    border-radius: 3px;
+  }
+  .scrollbar-theme::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--muted-foreground) / 0.8);
+  }
+
+  /* Hide scrollbar while keeping scroll behaviour (e.g. Features tab bar) */
+  .scrollbar-none {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
 }

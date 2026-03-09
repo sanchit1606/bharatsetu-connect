@@ -5,18 +5,20 @@ import { ScanSearch, Megaphone, ShieldCheck, Microscope, Flower2, ArrowRight, Lo
 import ScrollReveal from "@/components/ScrollReveal";
 
 const featureTabs = [
-  { id: "label-auditor", label: "Label Auditor", icon: ScanSearch },
-  { id: "civicsense", label: "CivicSense", icon: Megaphone },
-  { id: "rights-assistant", label: "Rights Assistant", icon: ShieldCheck },
-  { id: "lab-analyzer", label: "Lab Report Analyzer", icon: Microscope },
+  { id: "label-auditor", labelKey: "tab_label_auditor", icon: ScanSearch },
+  { id: "civicsense", labelKey: "tab_civicsense", icon: Megaphone },
+  { id: "rights-assistant", labelKey: "tab_rights", icon: ShieldCheck },
+  { id: "lab-analyzer", labelKey: "tab_lab", icon: Microscope },
   { id: "gynaecare", labelKey: "tab_gynae", icon: Flower2 },
 ];
 
 const FeatureSection = ({
   id, badge, headline, description, steps, results, reversed, privacy, disclaimer,
+  howItWorks, whatYouGet, tryLiveLabel, tryButtonLabel, tryButtonDisabled, comingSoonTitle,
 }: {
   id: string; badge: string; headline: string; description: string;
   steps: string[]; results: string[]; reversed?: boolean; privacy?: string; disclaimer?: string;
+  howItWorks: string; whatYouGet: string; tryLiveLabel: string; tryButtonLabel: string; tryButtonDisabled: boolean; comingSoonTitle: string;
 }) => (
   <section id={id} className="section-padding scroll-mt-28">
     <div className="container-content">
@@ -34,7 +36,7 @@ const FeatureSection = ({
             )}
           </ScrollReveal>
           <ScrollReveal delay={100}>
-            <h4 className="font-display font-semibold text-foreground mb-4">How It Works</h4>
+            <h4 className="font-display font-semibold text-foreground mb-4">{howItWorks}</h4>
             <div className="space-y-3 mb-6">
               {steps.map((s, i) => (
                 <div key={i} className="flex items-start gap-3">
@@ -45,7 +47,7 @@ const FeatureSection = ({
             </div>
           </ScrollReveal>
           <ScrollReveal delay={200}>
-            <h4 className="font-display font-semibold text-foreground mb-3">What You Get</h4>
+            <h4 className="font-display font-semibold text-foreground mb-3">{whatYouGet}</h4>
             <ul className="space-y-2 mb-6">
               {results.map((r, i) => (
                 <li key={i} className="flex items-start gap-2 text-sm text-muted-foreground">
@@ -73,14 +75,10 @@ const FeatureSection = ({
                   {id === "lab-analyzer" && <Microscope className="w-8 h-8 text-primary" />}
                   {id === "gynaecare" && <Flower2 className="w-8 h-8 text-primary" />}
                 </div>
-                <p className="text-sm">
-                  {id === "label-auditor" || id === "civicsense" || id === "rights-assistant" || id === "gynaecare"
-                    ? "Try the live interface"
-                    : "Interactive demo coming soon"}
-                </p>
+                <p className="text-sm">{tryLiveLabel}</p>
               </div>
             </div>
-            {id === "label-auditor" || id === "civicsense" || id === "rights-assistant" || id === "gynaecare" ? (
+            {!tryButtonDisabled ? (
               <Link
                 to={
                   id === "label-auditor"
@@ -89,19 +87,21 @@ const FeatureSection = ({
                     ? "/civicsense"
                     : id === "rights-assistant"
                     ? "/rights-assistant"
+                    : id === "lab-analyzer"
+                    ? "/lab-report"
                     : "/gynaecare"
                 }
                 className="mt-4 w-full h-12 rounded-xl font-semibold hero-gradient-bg text-primary-foreground btn-press flex items-center justify-center text-sm flex-shrink-0"
               >
-                Try It →
+                {tryButtonLabel}
               </Link>
             ) : (
               <button
                 disabled
                 className="mt-4 w-full h-12 rounded-xl font-semibold bg-muted text-muted-foreground cursor-not-allowed text-sm"
-                title="Coming soon — backend integration in progress"
+                title={comingSoonTitle}
               >
-                Try It → (Coming Soon)
+                {tryButtonLabel}
               </button>
             )}
           </ScrollReveal>
@@ -113,7 +113,8 @@ const FeatureSection = ({
 
 const Features = () => {
   const location = useLocation();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const lang = i18n.resolvedLanguage || i18n.language || "en";
 
   useEffect(() => {
     if (location.hash) {
@@ -125,13 +126,15 @@ const Features = () => {
   }, [location]);
 
   return (
-    <div className="min-h-screen pt-16">
+    <div className="min-h-screen pt-16" key={lang}>
       {/* Hero */}
       <section className="section-padding pb-8" style={{ minHeight: "50vh", display: "flex", alignItems: "center" }}>
         <div className="container-content text-center">
           <ScrollReveal>
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-display font-bold text-foreground mb-4">
-              {t("features_page.hero_headline").replace("Can Do For You", "")} <span className="hero-gradient-text">Can Do For You</span>
+              {lang === "en"
+                ? <> {t("features_page.hero_headline").replace("Can Do For You", "")} <span className="hero-gradient-text">Can Do For You</span></>
+                : <span className="hero-gradient-text">{t("features_page.hero_headline")}</span>}
             </h1>
             <p className="text-muted-foreground max-w-2xl mx-auto text-sm sm:text-base">
               {t("features_page.hero_subtext")}
@@ -143,7 +146,7 @@ const Features = () => {
       {/* Sticky Tab Bar */}
       <div className="sticky top-16 z-40 glass-header border-b border-border">
         <div className="container-content px-4 sm:px-6 lg:px-8 flex justify-center">
-          <div className="flex gap-1 overflow-x-auto py-2 scrollbar-none snap-x max-w-full">
+          <div className="flex gap-1 overflow-x-auto overflow-y-hidden py-2 scrollbar-none snap-x max-w-full min-w-0">
             {featureTabs.map((t_item) => (
               <a
                 key={t_item.id}
@@ -151,7 +154,7 @@ const Features = () => {
                 className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-muted-foreground hover:text-primary hover:bg-primary/5 transition-colors whitespace-nowrap snap-center btn-press"
               >
                 <t_item.icon className="w-4 h-4" />
-                {t_item.labelKey ? t(`features_page.${t_item.labelKey}`) : t_item.id}
+                {t(`features_page.${t_item.labelKey}`)}
               </a>
             ))}
           </div>
@@ -161,114 +164,91 @@ const Features = () => {
       {/* Feature Sections */}
       <FeatureSection
         id="label-auditor"
-        badge="Feature 01 — Label Auditor"
-        headline="Know What You're Really Eating."
-        description="Photograph any food or cosmetic product label on your phone. BharatSetu's AI reads the label using OCR, extracts every ingredient and nutritional value, cross-references it against FSSAI and WHO standards, and gives you a simple, personalized health summary — in your language."
-        steps={[
-          "Tell us about any health conditions (diabetes, hypertension, allergies) — optional",
-          "Take or upload a photo of the product label",
-          "AI extracts ingredients, nutrition values, additives, and health claims",
-          "Receive a plain-language report with flags for concerns",
-        ]}
-        results={[
-          "Visual bar charts of nutritional content per 100g",
-          "Health alerts for excessive sugar, sodium, trans fat",
-          "Flags for misleading label claims",
-          "Response in your preferred language",
-        ]}
+        badge={t("features_page.f1_badge")}
+        headline={t("features_page.f1_headline")}
+        description={t("features_page.f1_description")}
+        steps={[t("features_page.f1_step_1"), t("features_page.f1_step_2"), t("features_page.f1_step_3"), t("features_page.f1_step_4")]}
+        results={[t("features_page.f1_result_1"), t("features_page.f1_result_2"), t("features_page.f1_result_3"), t("features_page.f1_result_4")]}
+        howItWorks={t("features_page.how_it_works")}
+        whatYouGet={t("features_page.what_you_get")}
+        tryLiveLabel={t("features_page.try_live_interface")}
+        tryButtonLabel={t("features_page.try_it")}
+        tryButtonDisabled={false}
+        comingSoonTitle={t("features_page.coming_soon")}
       />
 
       <div className="border-t border-border" />
 
       <FeatureSection
         id="civicsense"
-        badge="Feature 02 — CivicSense"
-        headline="Your Complaint. The Right Desk. Every Time."
-        description="Describe any civic problem — in your own words, in any language, with or without a photo. CivicSense identifies the issue type, maps it to the correct government department for your city, drafts a professional complaint on your behalf, and shows you exactly how to submit it."
+        badge={t("features_page.f2_badge")}
+        headline={t("features_page.f2_headline")}
+        description={t("features_page.f2_description")}
         reversed
-        steps={[
-          "Describe the issue (voice or text) and optionally attach a photo",
-          "AI detects language, classifies the issue, and determines urgency",
-          "System maps your location and issue to the correct authority",
-          "Receive a drafted complaint with submission links, WhatsApp pre-fills, and escalation options",
-        ]}
-        results={[
-          "Professional complaint text ready to send",
-          "Direct WhatsApp / Email / Web portal submission options",
-          "Pre-filled forms wherever possible",
-          "Escalation path if the first authority doesn't respond",
-        ]}
+        steps={[t("features_page.f2_step_1"), t("features_page.f2_step_2"), t("features_page.f2_step_3"), t("features_page.f2_step_4")]}
+        results={[t("features_page.f2_result_1"), t("features_page.f2_result_2"), t("features_page.f2_result_3"), t("features_page.f2_result_4")]}
+        howItWorks={t("features_page.how_it_works")}
+        whatYouGet={t("features_page.what_you_get")}
+        tryLiveLabel={t("features_page.try_live_interface")}
+        tryButtonLabel={t("features_page.try_it")}
+        tryButtonDisabled={false}
+        comingSoonTitle={t("features_page.coming_soon")}
       />
 
       <div className="border-t border-border" />
 
       <FeatureSection
         id="rights-assistant"
-        badge="Feature 03 — Rights Assistant"
-        headline="Legal Documents in Plain Language. Finally."
-        description="Upload any document — a rental agreement, government notice, employment contract, or ration card form — and ask BharatSetu to explain it. Or ask any question about your legal rights, entitlements, or government schemes. Our RAG-powered assistant cross-references Indian law from IndiaCode and gives you a cited, plain-language answer."
-        steps={[
-          "Upload a document or type/speak your legal question",
-          "OCR extracts text from the document",
-          "AI cross-references against legal knowledge base and IndiaCode",
-          "Receive a plain-language explanation with source citations",
-        ]}
-        results={[
-          "Simplified document summary",
-          "Your rights clearly stated",
-          "Step-by-step guidance for claiming entitlements",
-          "Source: act name and section cited for every answer",
-          "Available in Hindi and regional languages",
-        ]}
+        badge={t("features_page.f3_badge")}
+        headline={t("features_page.f3_headline")}
+        description={t("features_page.f3_description")}
+        steps={[t("features_page.f3_step_1"), t("features_page.f3_step_2"), t("features_page.f3_step_3"), t("features_page.f3_step_4")]}
+        results={[t("features_page.f3_result_1"), t("features_page.f3_result_2"), t("features_page.f3_result_3"), t("features_page.f3_result_4"), t("features_page.f3_result_5")]}
+        howItWorks={t("features_page.how_it_works")}
+        whatYouGet={t("features_page.what_you_get")}
+        tryLiveLabel={t("features_page.try_live_interface")}
+        tryButtonLabel={t("features_page.try_it")}
+        tryButtonDisabled={false}
+        comingSoonTitle={t("features_page.coming_soon")}
       />
 
       <div className="border-t border-border" />
 
       <FeatureSection
         id="lab-analyzer"
-        badge="Feature 04 — Lab Report Analyzer"
-        headline="Understand Your Health. Without the Medical Degree."
-        description="Upload your pathology or blood test report as a PDF or image. BharatSetu extracts every test value, compares it against age- and gender-specific WHO and ICMR reference ranges, and shows you a simple visual chart — color-coded Green, Yellow, or Red. India-specific diet suggestions are included. Zero data is stored."
+        badge={t("features_page.f4_badge")}
+        headline={t("features_page.f4_headline")}
+        description={t("features_page.f4_description")}
         reversed
-        disclaimer="This tool is for educational comparison only. It does not diagnose conditions or replace medical consultation. Always consult a qualified doctor."
-        steps={[
-          "Enter your age, gender, and any known conditions (optional)",
-          "Upload your lab report (PDF, JPG, or PNG)",
-          "AI extracts values and compares against standard ranges",
-          "View a visual, color-coded report with wellness suggestions",
-        ]}
-        results={[
-          "Color-coded values (Green = normal, Yellow = borderline, Red = outside range)",
-          "Visual bar charts per test value",
-          "India-specific diet suggestions (palak, amla, dal, etc.)",
-          "Downloadable summary (stored locally on your device only)",
-          "Critical value alerts if anything needs urgent attention",
-        ]}
-        privacy="Zero Data Policy — Your lab report is processed in memory and immediately discarded. Nothing is stored on our servers."
+        disclaimer={t("features_page.f4_disclaimer")}
+        steps={[t("features_page.f4_step_1"), t("features_page.f4_step_2"), t("features_page.f4_step_3"), t("features_page.f4_step_4")]}
+        results={[t("features_page.f4_result_1"), t("features_page.f4_result_2"), t("features_page.f4_result_3"), t("features_page.f4_result_4"), t("features_page.f4_result_5")]}
+        privacy={t("features_page.f4_privacy")}
+        howItWorks={t("features_page.how_it_works")}
+        whatYouGet={t("features_page.what_you_get")}
+        tryLiveLabel={t("features_page.try_live_interface")}
+        tryButtonLabel={t("features_page.try_it")}
+        tryButtonDisabled={false}
+        comingSoonTitle={t("features_page.coming_soon")}
       />
 
       <div className="border-t border-border" />
 
       <FeatureSection
         id="gynaecare"
-        badge="Feature 05 — GynaeCare"
-        headline="Women's Health. Answered. Without Judgment."
-        description="GynaeCare is a completely anonymous, stigma-free chatbot for women's health questions. Ask about menstrual cycles, PCOS, pregnancy, or general wellness. Every answer is sourced from WHO, UNICEF, NHS, and National Health Mission India. No account. No data. No judgment."
-        disclaimer="This module is educational and does not provide medical diagnosis. Emergency symptoms trigger immediate helpline referrals."
-        steps={[
-          "Ask any question — in Hindi, English, or your regional language",
-          "AI retrieves verified answers from WHO/NHS/UNICEF knowledge base",
-          "Receive an empathetic, age-appropriate response with source references",
-          "Emergency symptoms or crisis keywords automatically surface helplines",
-        ]}
-        results={[
-          "Menstrual health education and myth-busting",
-          "PCOS awareness and symptom checker",
-          "Pregnancy trimester guidance",
-          "Period tracker (stored only on your device)",
-          "Helpline numbers: Medical (108), Women's Helpline (181), Mental Health (1860-2662-345)",
-        ]}
-        privacy="Completely Anonymous — No questions are logged. No identity required. Your conversation disappears when you close the tab."
+        badge={t("features_page.f5_badge")}
+        headline={t("features_page.f5_headline")}
+        description={t("features_page.f5_description")}
+        disclaimer={t("features_page.f5_disclaimer")}
+        steps={[t("features_page.f5_step_1"), t("features_page.f5_step_2"), t("features_page.f5_step_3"), t("features_page.f5_step_4")]}
+        results={[t("features_page.f5_result_1"), t("features_page.f5_result_2"), t("features_page.f5_result_3"), t("features_page.f5_result_4"), t("features_page.f5_result_5")]}
+        privacy={t("features_page.f5_privacy")}
+        howItWorks={t("features_page.how_it_works")}
+        whatYouGet={t("features_page.what_you_get")}
+        tryLiveLabel={t("features_page.try_live_interface")}
+        tryButtonLabel={t("features_page.try_it")}
+        tryButtonDisabled={false}
+        comingSoonTitle={t("features_page.coming_soon")}
       />
 
       {/* Footer CTA */}
