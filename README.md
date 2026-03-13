@@ -33,6 +33,9 @@ Python
 
 **Deployed Prototype:** [https://bharatsetu-sanchit.vercel.app/](https://main.d3rej4g07xz2qi.amplifyapp.com/)
 
+**Deployed Prototype:** [https://bharatsetu-sanchit.vercel.app/](https://bharatsetu-sanchit.vercel.app/)
+
+
 ---
 
 ## Team Contact
