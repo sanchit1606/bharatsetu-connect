@@ -26,10 +26,6 @@ type TabMode = "document" | "question";
 const OUTPUT_LANG_OPTIONS: { value: string; label: string }[] = [
   { value: "en", label: "English" },
   { value: "hi", label: "Hindi" },
-  { value: "mr", label: "Marathi" },
-  { value: "gu", label: "Gujarati" },
-  { value: "ta", label: "Tamil" },
-  { value: "te", label: "Telugu" },
 ];
 
 const TTS_LOCALE: Record<string, string> = {

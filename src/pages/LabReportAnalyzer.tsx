@@ -117,10 +117,6 @@ const TTS_LOCALE: Record<string, string> = {
 const REPORT_LANG_OPTIONS: { value: string; label: string }[] = [
   { value: "en", label: "English" },
   { value: "hi", label: "Hindi" },
-  { value: "mr", label: "Marathi" },
-  { value: "gu", label: "Gujarati" },
-  { value: "ta", label: "Tamil" },
-  { value: "te", label: "Telugu" },
 ];
 
 const REPORT_LANG_HEADINGS: Record<string, { chartHeading: string; tableHeading: string; suggestionsHeading: string; param: string; your_value: string; normal_range: string; status: string }> = {

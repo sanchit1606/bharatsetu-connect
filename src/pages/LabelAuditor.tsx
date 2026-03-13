@@ -703,17 +703,14 @@ export default function LabelAuditor() {
                                 >
                                     <option value="en">English</option>
                                     <option value="hi">हिंदी (Hindi)</option>
-                                    <option value="mr">मराठी (Marathi)</option>
-                                    <option value="ta">தமிழ் (Tamil)</option>
-                                    <option value="te">తెలుగు (Telugu)</option>
                                 </select>
                             </div>
                         </div>
                         {(recognition || isSttConfigured()) && (
                             <p className="text-xs text-center text-muted-foreground">
                                 {isSttConfigured()
-                                    ? "Voice input uses ElevenLabs (90+ languages). Speak, then tap again to transcribe."
-                                    : `${t("label_auditor_page.voice_note")} Voice input uses the selected language; Marathi/Tamil/Telugu depend on your browser.`}
+                                    ? "Voice input uses ElevenLabs. Speak, then tap again to transcribe."
+                                    : `${t("label_auditor_page.voice_note")} Voice input uses the selected language.`}
                             </p>
                         )}
                         {voiceError && (
@@ -887,8 +884,8 @@ export default function LabelAuditor() {
                                                     ? "Playing with ElevenLabs"
                                                     : "Playing with device voice"
                                                 : isTtsConfigured()
-                                                    ? "Uses ElevenLabs for all Indian languages (en, hi, mr, ta, te)."
-                                                    : "Uses device voice. Add language in system settings if Marathi/Tamil/Telugu don't play."}
+                                                    ? "Uses ElevenLabs for TTS."
+                                                    : "Uses device voice."}
                                         </p>
                                     </div>
                                 </div>
