@@ -1,0 +1,169 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="990pt" height="495pt" viewBox="0.00 0.00 990.00 495.00">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 491.4)">
+<title>G</title>
+<polygon fill="white" stroke="none" points="-4,4 -4,-491.4 986,-491.4 986,4 -4,4"/>
+<g id="clust1" class="cluster">
+<title>cluster_user</title>
+<polygon fill="none" stroke="black" points="40,-406.2 40,-479.4 120,-479.4 120,-406.2 40,-406.2"/>
+<text xml:space="preserve" text-anchor="middle" x="80" y="-465.5" font-family="Times,serif" font-size="11.00">User</text>
+</g>
+<g id="clust2" class="cluster">
+<title>cluster_frontend</title>
+<polygon fill="#e3f2fd" stroke="#1565c0" points="8,-202.2 8,-377.4 388,-377.4 388,-202.2 8,-202.2"/>
+<text xml:space="preserve" text-anchor="middle" x="198" y="-363.5" font-family="Times,serif" font-size="11.00">Frontend - React SPA (Vite, TypeScript)</text>
+</g>
+<g id="clust3" class="cluster">
+<title>cluster_gateway</title>
+<polygon fill="#e8f5e9" stroke="#2e7d32" points="396,-202.2 396,-275.4 890,-275.4 890,-202.2 396,-202.2"/>
+<text xml:space="preserve" text-anchor="middle" x="643" y="-261.5" font-family="Times,serif" font-size="11.00">AWS - API Gateway (REST, CORS)</text>
+</g>
+<g id="clust4" class="cluster">
+<title>cluster_lambda</title>
+<polygon fill="#fff3e0" stroke="#e65100" points="304,-110 304,-183.2 974,-183.2 974,-110 304,-110"/>
+<text xml:space="preserve" text-anchor="middle" x="639" y="-169.3" font-family="Times,serif" font-size="11.00">Lambda Node 20 - Amplify Gen 2 Backend</text>
+</g>
+<g id="clust5" class="cluster">
+<title>cluster_ai</title>
+<polygon fill="#f3e5f5" stroke="#6a1b9a" points="484,-8 484,-81.2 900,-81.2 900,-8 484,-8"/>
+<text xml:space="preserve" text-anchor="middle" x="692" y="-67.3" font-family="Times,serif" font-size="11.00">AI and External Services</text>
+</g>
+<!-- Browser -->
+<g id="node1" class="node">
+<title>Browser</title>
+<ellipse fill="#e8e8e8" stroke="#555555" cx="80" cy="-432.2" rx="31.68" ry="18"/>
+<text xml:space="preserve" text-anchor="middle" x="80" y="-429.2" font-family="Arial" font-size="10.00">Browser</text>
+</g>
+<!-- React -->
+<g id="node2" class="node">
+<title>React</title>
+<path fill="#bbdefb" stroke="#0d47a1" d="M132.42,-348.2C132.42,-348.2 27.58,-348.2 27.58,-348.2 21.58,-348.2 15.58,-342.2 15.58,-336.2 15.58,-336.2 15.58,-324.2 15.58,-324.2 15.58,-318.2 21.58,-312.2 27.58,-312.2 27.58,-312.2 132.42,-312.2 132.42,-312.2 138.42,-312.2 144.42,-318.2 144.42,-324.2 144.42,-324.2 144.42,-336.2 144.42,-336.2 144.42,-342.2 138.42,-348.2 132.42,-348.2"/>
+<text xml:space="preserve" text-anchor="middle" x="80" y="-327.2" font-family="Arial" font-size="10.00">React 18, React Router 6</text>
+</g>
+<!-- Browser&#45;&gt;React -->
+<g id="edge2" class="edge">
+<title>Browser-&gt;React</title>
+<path fill="none" stroke="#666666" d="M80,-413.78C80,-398.94 80,-377.32 80,-359.92"/>
+<polygon fill="#666666" stroke="#666666" points="83.5,-359.93 80,-349.93 76.5,-359.93 83.5,-359.93"/>
+<text xml:space="preserve" text-anchor="middle" x="94.75" y="-388.1" font-family="Arial" font-size="9.00">HTTPS</text>
+</g>
+<!-- UI -->
+<g id="node3" class="node">
+<title>UI</title>
+<path fill="#bbdefb" stroke="#0d47a1" d="M208.48,-246.2C208.48,-246.2 27.52,-246.2 27.52,-246.2 21.52,-246.2 15.52,-240.2 15.52,-234.2 15.52,-234.2 15.52,-222.2 15.52,-222.2 15.52,-216.2 21.52,-210.2 27.52,-210.2 27.52,-210.2 208.48,-210.2 208.48,-210.2 214.48,-210.2 220.48,-216.2 220.48,-222.2 220.48,-222.2 220.48,-234.2 220.48,-234.2 220.48,-240.2 214.48,-246.2 208.48,-246.2"/>
+<text xml:space="preserve" text-anchor="middle" x="118" y="-225.2" font-family="Arial" font-size="10.00">Tailwind, Radix UI, Framer Motion, i18next</text>
+</g>
+<!-- React&#45;&gt;UI -->
+<g id="edge1" class="edge">
+<title>React-&gt;UI</title>
+<path fill="none" stroke="black" d="M86.62,-311.78C92.34,-296.73 100.71,-274.69 107.37,-257.16"/>
+<polygon fill="black" stroke="black" points="110.64,-258.43 110.92,-247.83 104.1,-255.94 110.64,-258.43"/>
+</g>
+<!-- APIGW -->
+<g id="node5" class="node">
+<title>APIGW</title>
+<path fill="#c8e6c9" stroke="#1b5e20" d="M870.22,-246.2C870.22,-246.2 415.78,-246.2 415.78,-246.2 409.78,-246.2 403.78,-240.2 403.78,-234.2 403.78,-234.2 403.78,-222.2 403.78,-222.2 403.78,-216.2 409.78,-210.2 415.78,-210.2 415.78,-210.2 870.22,-210.2 870.22,-210.2 876.22,-210.2 882.22,-216.2 882.22,-222.2 882.22,-222.2 882.22,-234.2 882.22,-234.2 882.22,-240.2 876.22,-246.2 870.22,-246.2"/>
+<text xml:space="preserve" text-anchor="middle" x="643" y="-225.2" font-family="Arial" font-size="10.00">API Gateway, stage dev. POST: analyze-label, analyze-lab-report, civic-sense, explain-document, tts, stt</text>
+</g>
+<!-- React&#45;&gt;APIGW -->
+<g id="edge3" class="edge">
+<title>React-&gt;APIGW</title>
+<path fill="none" stroke="#1565c0" d="M144.82,-313.83C147.58,-313.27 150.32,-312.72 153,-312.2 258.52,-291.82 286.03,-293.31 392,-275.4 440.94,-267.13 495.1,-257.25 540.56,-248.76"/>
+<polygon fill="#1565c0" stroke="#1565c0" points="540.94,-252.25 550.12,-246.96 539.65,-245.37 540.94,-252.25"/>
+<text xml:space="preserve" text-anchor="middle" x="366.99" y="-286.1" font-family="Arial" font-size="9.00">POST JSON</text>
+</g>
+<!-- Client -->
+<g id="node4" class="node">
+<title>Client</title>
+<path fill="#90caf9" stroke="#0d47a1" d="M367.58,-348.2C367.58,-348.2 174.42,-348.2 174.42,-348.2 168.42,-348.2 162.42,-342.2 162.42,-336.2 162.42,-336.2 162.42,-324.2 162.42,-324.2 162.42,-318.2 168.42,-312.2 174.42,-312.2 174.42,-312.2 367.58,-312.2 367.58,-312.2 373.58,-312.2 379.58,-318.2 379.58,-324.2 379.58,-324.2 379.58,-336.2 379.58,-336.2 379.58,-342.2 373.58,-348.2 367.58,-348.2"/>
+<text xml:space="preserve" text-anchor="middle" x="271" y="-327.2" font-family="Arial" font-size="10.00">Tesseract.js OCR, pdfjs, mammoth, Recharts</text>
+</g>
+<!-- L1 -->
+<g id="node6" class="node">
+<title>L1</title>
+<path fill="#ffe0b2" stroke="#bf360c" d="M441.95,-154C441.95,-154 324.05,-154 324.05,-154 318.05,-154 312.05,-148 312.05,-142 312.05,-142 312.05,-130 312.05,-130 312.05,-124 318.05,-118 324.05,-118 324.05,-118 441.95,-118 441.95,-118 447.95,-118 453.95,-124 453.95,-130 453.95,-130 453.95,-142 453.95,-142 453.95,-148 447.95,-154 441.95,-154"/>
+<text xml:space="preserve" text-anchor="middle" x="383" y="-133" font-family="Arial" font-size="10.00">analyze-label (label + query)</text>
+</g>
+<!-- APIGW&#45;&gt;L1 -->
+<g id="edge4" class="edge">
+<title>APIGW-&gt;L1</title>
+<path fill="none" stroke="#2e7d32" d="M549.85,-209.74C521.44,-203.01 490.47,-194.23 463,-183.2 447.67,-177.05 431.72,-168.37 418.14,-160.19"/>
+<polygon fill="#2e7d32" stroke="#2e7d32" points="420.35,-157.44 410,-155.16 416.67,-163.39 420.35,-157.44"/>
+</g>
+<!-- L2 -->
+<g id="node7" class="node">
+<title>L2</title>
+<path fill="#ffe0b2" stroke="#bf360c" d="M636.02,-154C636.02,-154 483.98,-154 483.98,-154 477.98,-154 471.98,-148 471.98,-142 471.98,-142 471.98,-130 471.98,-130 471.98,-124 477.98,-118 483.98,-118 483.98,-118 636.02,-118 636.02,-118 642.02,-118 648.02,-124 648.02,-130 648.02,-130 648.02,-142 648.02,-142 648.02,-148 642.02,-154 636.02,-154"/>
+<text xml:space="preserve" text-anchor="middle" x="560" y="-133" font-family="Arial" font-size="10.00">analyze-lab-report (report summary)</text>
+</g>
+<!-- APIGW&#45;&gt;L2 -->
+<g id="edge5" class="edge">
+<title>APIGW-&gt;L2</title>
+<path fill="none" stroke="#2e7d32" d="M627,-209.81C614.71,-196.46 597.56,-177.81 583.68,-162.74"/>
+<polygon fill="#2e7d32" stroke="#2e7d32" points="586.33,-160.44 576.98,-155.45 581.17,-165.18 586.33,-160.44"/>
+</g>
+<!-- L3 -->
+<g id="node8" class="node">
+<title>L3</title>
+<path fill="#ffcc80" stroke="#bf360c" d="M803.98,-154C803.98,-154 678.02,-154 678.02,-154 672.02,-154 666.02,-148 666.02,-142 666.02,-142 666.02,-130 666.02,-130 666.02,-124 672.02,-118 678.02,-118 678.02,-118 803.98,-118 803.98,-118 809.98,-118 815.98,-124 815.98,-130 815.98,-130 815.98,-142 815.98,-142 815.98,-148 809.98,-154 803.98,-154"/>
+<text xml:space="preserve" text-anchor="middle" x="741" y="-133" font-family="Arial" font-size="10.00">civic-sense, explain-document</text>
+</g>
+<!-- APIGW&#45;&gt;L3 -->
+<g id="edge6" class="edge">
+<title>APIGW-&gt;L3</title>
+<path fill="none" stroke="#2e7d32" d="M661.9,-209.81C676.67,-196.21 697.42,-177.12 713.95,-161.9"/>
+<polygon fill="#2e7d32" stroke="#2e7d32" points="716.06,-164.71 721.05,-155.36 711.32,-159.56 716.06,-164.71"/>
+</g>
+<!-- L4 -->
+<g id="node9" class="node">
+<title>L4</title>
+<path fill="#ffcc80" stroke="#bf360c" d="M953.8,-154C953.8,-154 846.2,-154 846.2,-154 840.2,-154 834.2,-148 834.2,-142 834.2,-142 834.2,-130 834.2,-130 834.2,-124 840.2,-118 846.2,-118 846.2,-118 953.8,-118 953.8,-118 959.8,-118 965.8,-124 965.8,-130 965.8,-130 965.8,-142 965.8,-142 965.8,-148 959.8,-154 953.8,-154"/>
+<text xml:space="preserve" text-anchor="middle" x="900" y="-133" font-family="Arial" font-size="10.00">tts, stt (ElevenLabs proxy)</text>
+</g>
+<!-- APIGW&#45;&gt;L4 -->
+<g id="edge7" class="edge">
+<title>APIGW-&gt;L4</title>
+<path fill="none" stroke="#2e7d32" d="M739.74,-209.77C767.82,-203.13 798.14,-194.39 825,-183.2 839.26,-177.26 853.94,-168.82 866.49,-160.77"/>
+<polygon fill="#2e7d32" stroke="#2e7d32" points="868.37,-163.72 874.79,-155.29 864.52,-157.88 868.37,-163.72"/>
+</g>
+<!-- Bedrock -->
+<g id="node10" class="node">
+<title>Bedrock</title>
+<path fill="#e1bee7" stroke="#4a148c" d="M709.71,-52C709.71,-52 504.29,-52 504.29,-52 498.29,-52 492.29,-46 492.29,-40 492.29,-40 492.29,-28 492.29,-28 492.29,-22 498.29,-16 504.29,-16 504.29,-16 709.71,-16 709.71,-16 715.71,-16 721.71,-22 721.71,-28 721.71,-28 721.71,-40 721.71,-40 721.71,-46 715.71,-52 709.71,-52"/>
+<text xml:space="preserve" text-anchor="middle" x="607" y="-31" font-family="Arial" font-size="10.00">Amazon Bedrock, Converse API, Gemma 3 27B</text>
+</g>
+<!-- L1&#45;&gt;Bedrock -->
+<g id="edge8" class="edge">
+<title>L1-&gt;Bedrock</title>
+<path fill="none" stroke="#6a1b9a" d="M422.02,-117.58C459.72,-100.75 516.98,-75.19 557.79,-56.97"/>
+<polygon fill="#6a1b9a" stroke="#6a1b9a" points="558.97,-60.28 566.67,-53 556.11,-53.88 558.97,-60.28"/>
+<text xml:space="preserve" text-anchor="middle" x="507.1" y="-91.9" font-family="Arial" font-size="9.00">InvokeModel</text>
+</g>
+<!-- L2&#45;&gt;Bedrock -->
+<g id="edge9" class="edge">
+<title>L2-&gt;Bedrock</title>
+<path fill="none" stroke="#6a1b9a" d="M568.19,-117.58C575.33,-102.38 585.82,-80.07 594.09,-62.46"/>
+<polygon fill="#6a1b9a" stroke="#6a1b9a" points="597.18,-64.13 598.26,-53.59 590.84,-61.15 597.18,-64.13"/>
+<text xml:space="preserve" text-anchor="middle" x="606.2" y="-91.9" font-family="Arial" font-size="9.00">InvokeModel</text>
+</g>
+<!-- L3&#45;&gt;Bedrock -->
+<g id="edge10" class="edge">
+<title>L3-&gt;Bedrock</title>
+<path fill="none" stroke="#6a1b9a" d="M717.66,-117.58C695.95,-101.38 663.4,-77.09 639.22,-59.04"/>
+<polygon fill="#6a1b9a" stroke="#6a1b9a" points="641.39,-56.3 631.29,-53.12 637.21,-61.91 641.39,-56.3"/>
+<text xml:space="preserve" text-anchor="middle" x="719.35" y="-91.9" font-family="Arial" font-size="9.00">InvokeModel</text>
+</g>
+<!-- ElevenLabs -->
+<g id="node11" class="node">
+<title>ElevenLabs</title>
+<path fill="#ce93d8" stroke="#4a148c" d="M880.36,-52C880.36,-52 751.64,-52 751.64,-52 745.64,-52 739.64,-46 739.64,-40 739.64,-40 739.64,-28 739.64,-28 739.64,-22 745.64,-16 751.64,-16 751.64,-16 880.36,-16 880.36,-16 886.36,-16 892.36,-22 892.36,-28 892.36,-28 892.36,-40 892.36,-40 892.36,-46 886.36,-52 880.36,-52"/>
+<text xml:space="preserve" text-anchor="middle" x="816" y="-31" font-family="Arial" font-size="10.00">ElevenLabs API, TTS and STT</text>
+</g>
+<!-- L4&#45;&gt;ElevenLabs -->
+<g id="edge11" class="edge">
+<title>L4-&gt;ElevenLabs</title>
+<path fill="none" stroke="#6a1b9a" d="M885.37,-117.58C872.24,-101.95 852.79,-78.8 837.82,-60.98"/>
+<polygon fill="#6a1b9a" stroke="#6a1b9a" points="840.55,-58.78 831.44,-53.38 835.19,-63.29 840.55,-58.78"/>
+<text xml:space="preserve" text-anchor="middle" x="885.94" y="-91.9" font-family="Arial" font-size="9.00">API key</text>
+</g>
+</g>
+</svg>
