@@ -31,9 +31,9 @@ Python
 
 ## Live Demo
 
-**Deployed Prototype:** [https://bharatsetu-sanchit.vercel.app/](https://main.d3rej4g07xz2qi.amplifyapp.com/)
+**Deployed Prototype:** [https://main.d3rej4g07xz2qi.amplifyapp.com/](AWS AMPLIFY)
 
-**Deployed Prototype:** [https://bharatsetu-sanchit.vercel.app/](https://bharatsetu-sanchit.vercel.app/)
+**Deployed Prototype:** [https://bharatsetu-sanchit.vercel.app/](VERCEL)
 
 
 ---
