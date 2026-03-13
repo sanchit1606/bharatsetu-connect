@@ -1,3 +1,30 @@
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
+
+function loadElevenLabsKey(): void {
+  if (process.env.ELEVENLABS_API_KEY?.trim()) return;
+  const __dirname = path.dirname(fileURLToPath(import.meta.url));
+  const candidates = [
+    path.resolve(process.cwd(), ".env"),
+    path.resolve(__dirname, "..", ".env"),
+  ];
+  for (const envPath of candidates) {
+    try {
+      const content = fs.readFileSync(envPath, "utf8");
+      const match = content.match(/^\s*ELEVENLABS_API_KEY\s*=\s*(.+?)\s*$/m);
+      if (match) {
+        const value = match[1].replace(/^["']|["']$/g, "").trim();
+        if (value) process.env.ELEVENLABS_API_KEY = value;
+        return;
+      }
+    } catch {
+      // file missing or unreadable, try next
+    }
+  }
+}
+loadElevenLabsKey();
+
 import { defineBackend } from "@aws-amplify/backend";
 import { Stack } from "aws-cdk-lib";
 import { AuthorizationType, Cors, LambdaIntegration, RestApi } from "aws-cdk-lib/aws-apigateway";

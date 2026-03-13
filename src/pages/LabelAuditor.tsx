@@ -80,6 +80,7 @@ export default function LabelAuditor() {
 
     const [isRecording, setIsRecording] = useState(false);
     const [isTranscribing, setIsTranscribing] = useState(false);
+    const [voiceError, setVoiceError] = useState<string | null>(null);
     const [recognition, setRecognition] = useState<any>(null);
     const mediaRecorderRef = useRef<MediaRecorder | null>(null);
     const chunksRef = useRef<Blob[]>([]);
@@ -191,6 +192,7 @@ export default function LabelAuditor() {
                 }
                 return;
             }
+            setVoiceError(null);
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
                 const recorder = new MediaRecorder(stream);
@@ -209,6 +211,8 @@ export default function LabelAuditor() {
                         try {
                             const text = await fetchSttTranscript({ audioBlob: blob, language });
                             if (text) setQuery((q) => (q ? `${q} ${text}` : text).trim().slice(0, 500));
+                        } catch (err) {
+                            setVoiceError(err instanceof Error ? err.message : "Voice input failed. Try again.");
                         } finally {
                             setIsTranscribing(false);
                         }
@@ -219,7 +223,7 @@ export default function LabelAuditor() {
                 setIsRecording(true);
             } catch (err) {
                 console.error("Microphone error:", err);
-                alert("Microphone access is needed for voice input.");
+                setVoiceError("Microphone access is needed for voice input.");
             }
             return;
         }
@@ -710,6 +714,12 @@ export default function LabelAuditor() {
                                 {isSttConfigured()
                                     ? "Voice input uses ElevenLabs (90+ languages). Speak, then tap again to transcribe."
                                     : `${t("label_auditor_page.voice_note")} Voice input uses the selected language; Marathi/Tamil/Telugu depend on your browser.`}
+                            </p>
+                        )}
+                        {voiceError && (
+                            <p className="text-xs text-center text-destructive flex items-center justify-center gap-1 mt-1">
+                                <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
+                                {voiceError}
                             </p>
                         )}
                     </div>

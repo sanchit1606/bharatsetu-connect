@@ -20,7 +20,8 @@ export interface SttOptions {
 }
 
 /**
- * Send audio to backend STT (ElevenLabs Scribe). Returns transcript text or null on error.
+ * Send audio to backend STT (ElevenLabs Scribe). Returns transcript text.
+ * Throws on network/API error so the UI can show a message (e.g. "STT not configured" or "Invalid API key").
  */
 export async function fetchSttTranscript(options: SttOptions): Promise<string | null> {
   const baseUrl = getBaseUrl();
@@ -39,15 +40,20 @@ export async function fetchSttTranscript(options: SttOptions): Promise<string | 
     }),
   });
 
-  if (!res.ok) return null;
-
-  let data: { text?: string };
+  let data: { text?: string; error?: string; message?: string; transcripts?: Array<{ text?: string }> };
   try {
-    data = (await res.json()) as { text?: string };
+    data = (await res.json()) as typeof data;
   } catch {
+    if (!res.ok) throw new Error(res.status === 503 ? "Voice input is not configured. Set ELEVENLABS_API_KEY on the backend." : `Request failed: ${res.status}`);
     return null;
   }
-  const text = data?.text?.trim();
+
+  if (!res.ok) {
+    const msg = [data?.message, data?.error].filter(Boolean).join(" — ") || `Request failed: ${res.status}`;
+    throw new Error(res.status === 503 ? "Voice input is not configured. Set ELEVENLABS_API_KEY on the backend." : msg);
+  }
+
+  const text = (data?.text ?? data?.transcripts?.[0]?.text)?.trim();
   return text ?? null;
 }
 

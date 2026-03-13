@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "sandbox": "npx dotenv-cli -e .env -- npx ampx sandbox",
     "build": "vite build",
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
@@ -77,6 +78,7 @@
   },
   "devDependencies": {
     "@aws-amplify/backend": "^1.0.0",
+    "dotenv-cli": "^7.4.2",
     "@aws-amplify/backend-cli": "^1.0.0",
     "@eslint/js": "^9.32.0",
     "@tailwindcss/typography": "^0.5.16",

@@ -1,6 +1,6 @@
 import type { APIGatewayProxyHandler } from "aws-lambda";
 
-const ELEVENLABS_API_KEY = process.env.ELEVENLABS_API_KEY ?? "";
+const ELEVENLABS_API_KEY = (process.env.ELEVENLABS_API_KEY ?? "").trim();
 
 /** Speech-to-Text model. Override with ELEVENLABS_STT_MODEL_ID. Options: scribe_v2 (default, 90+ languages), scribe_v1 */
 const STT_MODEL_ID = process.env.ELEVENLABS_STT_MODEL_ID ?? "scribe_v2";
@@ -90,7 +90,8 @@ export const handler: APIGatewayProxyHandler = async (event) => {
 
   const extension = contentType.includes("webm") ? "webm" : "audio";
   const form = new FormData();
-  form.append("file", new Blob([audioBuffer], { type: contentType }), `audio.${extension}`);
+  const file = new File([audioBuffer], `audio.${extension}`, { type: contentType });
+  form.append("file", file);
   form.append("model_id", STT_MODEL_ID);
   form.append("language_code", languageCode);
 
@@ -98,7 +99,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     const res = await fetch("https://api.elevenlabs.io/v1/speech-to-text", {
       method: "POST",
       headers: {
-        "xi-api-key": ELEVENLABS_API_KEY,
+        "xi-api-key": ELEVENLABS_API_KEY.trim(),
       },
       body: form,
     });
@@ -116,8 +117,8 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       };
     }
 
-    const data = (await res.json()) as { text?: string };
-    const text = (data?.text ?? "").trim();
+    const data = (await res.json()) as { text?: string; transcripts?: Array<{ text?: string }> };
+    const text = (data?.text ?? data?.transcripts?.[0]?.text ?? "").trim();
 
     return {
       statusCode: 200,
