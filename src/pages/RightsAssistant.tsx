@@ -10,6 +10,7 @@ import {
   Volume2,
   VolumeX,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { createWorker } from "tesseract.js";
 import mammoth from "mammoth";
 import ScrollReveal from "@/components/ScrollReveal";
@@ -26,24 +27,42 @@ type TabMode = "document" | "question";
 const OUTPUT_LANG_OPTIONS: { value: string; label: string }[] = [
   { value: "en", label: "English" },
   { value: "hi", label: "Hindi" },
+  { value: "mr", label: "Marathi" },
+  { value: "ta", label: "Tamil" },
+  { value: "te", label: "Telugu" },
+  { value: "gu", label: "Gujarati" },
+  { value: "bn", label: "Bengali" },
+  { value: "kn", label: "Kannada" },
+  { value: "ml", label: "Malayalam" },
+  { value: "ur", label: "Urdu" },
 ];
 
 const TTS_LOCALE: Record<string, string> = {
-  en: "en-IN", hi: "hi-IN", mr: "mr-IN", ta: "ta-IN", te: "te-IN", gu: "gu-IN",
+  en: "en-IN",
+  hi: "hi-IN",
+  mr: "mr-IN",
+  ta: "ta-IN",
+  te: "te-IN",
+  gu: "gu-IN",
+  bn: "bn-IN",
+  kn: "kn-IN",
+  ml: "ml-IN",
+  ur: "ur-IN",
 };
 
 /** Simple script-based language hint for detected text. */
-function detectLanguageHint(text: string): string {
+function detectLanguageHint(text: string, t: (key: string, opts?: unknown) => string): string {
   if (!text.trim()) return "—";
-  const t = text.slice(0, 500);
-  if (/[\u0900-\u097F]/.test(t)) return "Hindi / Devanagari";
-  if (/[\u0B80-\u0BFF]/.test(t)) return "Tamil";
-  if (/[\u0C00-\u0C7F]/.test(t)) return "Telugu";
-  if (/[\u0A80-\u0AFF]/.test(t)) return "Gujarati";
-  return "English (or similar)";
+  const txt = text.slice(0, 500);
+  if (/[\u0900-\u097F]/.test(txt)) return t("rights_assistant_page.lang_hint_hindi_devanagari", { defaultValue: "Hindi / Devanagari" });
+  if (/[\u0B80-\u0BFF]/.test(txt)) return t("rights_assistant_page.lang_hint_tamil", { defaultValue: "Tamil" });
+  if (/[\u0C00-\u0C7F]/.test(txt)) return t("rights_assistant_page.lang_hint_telugu", { defaultValue: "Telugu" });
+  if (/[\u0A80-\u0AFF]/.test(txt)) return t("rights_assistant_page.lang_hint_gujarati", { defaultValue: "Gujarati" });
+  return t("rights_assistant_page.lang_hint_english", { defaultValue: "English (or similar)" });
 }
 
 export default function RightsAssistant() {
+  const { t } = useTranslation();
   const [tab, setTab] = useState<TabMode>("document");
   const [documentFile, setDocumentFile] = useState<File | null>(null);
   const [extractedText, setExtractedText] = useState("");
@@ -59,7 +78,7 @@ export default function RightsAssistant() {
   const [isExplainLoading, setIsExplainLoading] = useState(false);
   const [explanation, setExplanation] = useState<ExplanationResult | null>(null);
   const [qaAnswer, setQaAnswer] = useState<QaAnswer | null>(null);
-  const [copyLabel, setCopyLabel] = useState("Copy");
+  const [copyLabel, setCopyLabel] = useState(t("rights_assistant_page.copy_button", { defaultValue: "Copy" }));
   const [isRecording, setIsRecording] = useState(false);
   const [isExplainSpeaking, setIsExplainSpeaking] = useState(false);
   const [isExplainTtsLoading, setIsExplainTtsLoading] = useState(false);
@@ -265,12 +284,12 @@ export default function RightsAssistant() {
         }
         const { text, confidence, words, lines } = await ocrPdf(documentFile);
         setExtractedText(text);
-        setDetectedLang(detectLanguageHint(text));
+        setDetectedLang(detectLanguageHint(text, t));
         setOcrData({ text, words, lines, confidence });
       } else if (isWordDoc(documentFile)) {
         const text = await extractTextFromWord(documentFile);
         setExtractedText(text);
-        setDetectedLang(detectLanguageHint(text));
+        setDetectedLang(detectLanguageHint(text, t));
       } else {
         const worker = await createWorker("mar+eng", undefined, { logger: () => {} });
         const { data } = await worker.recognize(documentFile, {}, { blocks: true });
@@ -278,7 +297,7 @@ export default function RightsAssistant() {
         const lines = blocks.flatMap((b) => b.paragraphs ?? []).flatMap((p) => p.lines ?? []);
         const words = lines.flatMap((l: { words?: unknown[] }) => l.words ?? []);
         setExtractedText(data.text || "");
-        setDetectedLang(detectLanguageHint(data.text || ""));
+        setDetectedLang(detectLanguageHint(data.text || "", t));
         setOcrData({ text: data.text || "", words, lines, confidence: data.confidence ?? 0 });
         await worker.terminate();
       }
@@ -311,7 +330,7 @@ export default function RightsAssistant() {
       console.error(err);
       const message = err instanceof Error ? err.message : String(err);
       setExplanation({
-        summary: `Could not get summary from backend. ${message}`,
+        summary: t("rights_assistant_page.error_backend_prefix", { defaultValue: "Could not get summary from backend." }) + ` ${message}`,
         rights: [],
         source: "",
         nextSteps: [],
@@ -426,7 +445,7 @@ export default function RightsAssistant() {
       else setIsRecording(true);
     }).catch((err) => {
       console.error("Microphone error:", err);
-      alert("Microphone access is needed for voice input.");
+      alert(t("rights_assistant_page.error_microphone_access", { defaultValue: "Microphone access is needed for voice input." }));
     });
   };
 
@@ -479,10 +498,10 @@ export default function RightsAssistant() {
   const handleCopy = async (text: string) => {
     try {
       await navigator.clipboard.writeText(text);
-      setCopyLabel("Copied!");
-      setTimeout(() => setCopyLabel("Copy"), 1500);
+      setCopyLabel(t("rights_assistant_page.copied_label", { defaultValue: "Copied!" }));
+      setTimeout(() => setCopyLabel(t("rights_assistant_page.copy_button", { defaultValue: "Copy" })), 1500);
     } catch {
-      setCopyLabel("Copy failed");
+      setCopyLabel(t("rights_assistant_page.copy_failed_label", { defaultValue: "Copy failed" }));
     }
   };
 
@@ -494,39 +513,36 @@ export default function RightsAssistant() {
           <ScrollReveal>
             <span className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1.5 text-xs font-semibold text-primary">
               <ShieldCheck className="h-4 w-4" />
-              Feature 03 — Rights Assistant
+              {t("rights_assistant_page.hero_badge", { defaultValue: "Feature 03 — Rights Assistant" })}
             </span>
             <h1 className="mt-4 font-display text-3xl font-bold text-foreground sm:text-4xl lg:text-5xl">
-              Legal documents in <span className="hero-gradient-text">plain language</span>.
+              {t("rights_assistant_page.hero_headline_part1", { defaultValue: "Legal documents in " })}<span className="hero-gradient-text">{t("rights_assistant_page.hero_headline_part2", { defaultValue: "plain language" })}</span>{t("rights_assistant_page.hero_headline_part3", { defaultValue: "." })}
             </h1>
             <p className="mt-4 max-w-xl text-sm leading-relaxed text-muted-foreground sm:text-base">
-              Upload a document (agreement, notice, form) or ask any question about your legal
-              rights and government schemes. Get a simple summary, your rights in plain language,
-              and source citations — no lawyer required to get started.
+              {t("rights_assistant_page.hero_subtitle", { defaultValue: "Upload a document (agreement, notice, form) or ask any question about your legal rights and government schemes. Get a simple summary, your rights in plain language, and source citations — no lawyer required to get started." })}
             </p>
             <div className="mt-6 flex flex-wrap gap-3 text-xs text-muted-foreground">
               <span className="inline-flex items-center gap-2 rounded-full border border-accent/30 bg-accent/10 px-3 py-1.5">
                 <BookOpen className="h-3.5 w-3.5 text-accent" />
-                For awareness only; not legal advice
+                {t("rights_assistant_page.disclaimer_note1", { defaultValue: "For awareness only; not legal advice" })}
               </span>
               <span className="inline-flex items-center gap-2 rounded-full border border-accent/30 bg-accent/10 px-3 py-1.5">
                 <Scale className="h-3.5 w-3.5 text-accent" />
-                Acts & sections cited
+                {t("rights_assistant_page.disclaimer_note2", { defaultValue: "Acts & sections cited" })}
               </span>
             </div>
           </ScrollReveal>
           <ScrollReveal delay={100}>
             <div className="card-elevated rounded-2xl bg-card p-6 lg:p-8">
-              <h3 className="mb-4 font-display text-sm font-semibold text-foreground">How it works</h3>
+              <h3 className="mb-4 font-display text-sm font-semibold text-foreground">{t("rights_assistant_page.how_it_works_heading", { defaultValue: "How it works" })}</h3>
               <ol className="space-y-3 text-sm text-muted-foreground">
                 <li className="flex gap-3">
                   <div className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full hero-gradient-bg text-xs font-bold text-primary-foreground">
                     1
                   </div>
                   <p>
-                    <span className="font-semibold text-foreground">Upload a document</span> (image, PDF, Word)
-                    or <span className="font-semibold text-foreground">ask a question</span> in text
-                    or voice.
+                    <span className="font-semibold text-foreground">{t("rights_assistant_page.step1_title", { defaultValue: "Upload a document" })}</span> (image, PDF, Word)
+                    {t("rights_assistant_page.step1_or", { defaultValue: " or " })}<span className="font-semibold text-foreground">{t("rights_assistant_page.step1_ask_question", { defaultValue: "ask a question" })}</span> {t("rights_assistant_page.step1_subtitle", { defaultValue: "in text or voice." })}
                   </p>
                 </li>
                 <li className="flex gap-3">
@@ -534,7 +550,7 @@ export default function RightsAssistant() {
                     2
                   </div>
                   <p>
-                    We extract text (OCR) or match your question to rights and schemes.
+                    {t("rights_assistant_page.step2_subtitle", { defaultValue: "We extract text (OCR) or match your question to rights and schemes." })}
                   </p>
                 </li>
                 <li className="flex gap-3">
@@ -542,9 +558,8 @@ export default function RightsAssistant() {
                     3
                   </div>
                   <p>
-                    You get a{" "}
-                    <span className="font-semibold text-foreground">plain-language summary</span> with
-                    source (act/section) and next steps.
+                    {t("rights_assistant_page.step3_part1", { defaultValue: "You get a " })}
+                    <span className="font-semibold text-foreground">{t("rights_assistant_page.step3_title", { defaultValue: "plain-language summary" })}</span> {t("rights_assistant_page.step3_part2", { defaultValue: "with source (act/section) and next steps." })}
                   </p>
                 </li>
               </ol>
@@ -567,7 +582,7 @@ export default function RightsAssistant() {
               }`}
             >
               <FileText className="h-4 w-4" />
-              Explain a document
+              {t("rights_assistant_page.tab_document_label", { defaultValue: "Explain a document" })}
             </button>
             <button
               type="button"
@@ -579,7 +594,7 @@ export default function RightsAssistant() {
               }`}
             >
               <MessageCircle className="h-4 w-4" />
-              Ask about rights
+              {t("rights_assistant_page.tab_question_label", { defaultValue: "Ask about rights" })}
             </button>
           </div>
 
@@ -627,7 +642,7 @@ export default function RightsAssistant() {
                   <div className="card-elevated rounded-2xl border border-border bg-card p-5">
                     <h3 className="mb-3 flex items-center gap-2 font-display text-sm font-semibold text-foreground">
                       <Scan className="h-4 w-4 text-primary" />
-                      OCR result
+                      {t("rights_assistant_page.ocr_result_heading", { defaultValue: "OCR result" })}
                     </h3>
                     {/* Document preview with recognised text boxes (when we have image + box data) */}
                     {previewUrl && imageDimensions && (
@@ -667,13 +682,13 @@ export default function RightsAssistant() {
                     {/* Confidence (Tesseract returns 0–100; some APIs use 0–1) */}
                     {ocrData && typeof ocrData.confidence === "number" && (
                       <p className="mb-3 text-xs font-medium text-muted-foreground">
-                        Confidence: <span className="text-foreground">{Math.min(100, Math.round(ocrData.confidence <= 1 ? ocrData.confidence * 100 : ocrData.confidence))}%</span>
+                        {t("rights_assistant_page.confidence_label", { defaultValue: "Confidence:" })} <span className="text-foreground">{Math.min(100, Math.round(ocrData.confidence <= 1 ? ocrData.confidence * 100 : ocrData.confidence))}%</span>
                       </p>
                     )}
                     {/* Plain text below */}
-                    <p className="mb-1.5 text-xs font-medium text-muted-foreground">Plain text</p>
+                    <p className="mb-1.5 text-xs font-medium text-muted-foreground">{t("rights_assistant_page.plain_text_label", { defaultValue: "Plain text" })}</p>
                     <div className="max-h-48 overflow-y-auto rounded-lg border border-border/50 bg-muted/30 p-3 text-sm font-mono text-foreground/90 whitespace-pre-wrap">
-                      {extractedText || ocrData?.text || "No text extracted."}
+                      {extractedText || ocrData?.text || t("rights_assistant_page.no_text_extracted_label", { defaultValue: "No text extracted." })}
                     </div>
                   </div>
                 )}

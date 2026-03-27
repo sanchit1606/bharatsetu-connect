@@ -6,8 +6,8 @@ import {
 
 const client = new BedrockRuntimeClient({ region: process.env.AWS_REGION ?? "ap-south-1" });
 
-/** Gemma 3 27B IT (multimodal). Override with BEDROCK_MODEL_ID. Available in ap-south-1; enable in Bedrock → Model access. */
-const MODEL_ID = process.env.BEDROCK_MODEL_ID ?? "google.gemma-3-27b-it";
+/** Claude Haiku 4.5 (multimodal). Override with BEDROCK_MODEL_ID. Available in ap-south-1; enable in Bedrock → Model access. */
+const MODEL_ID = process.env.BEDROCK_MODEL_ID ?? "anthropic.claude-haiku-4-5-20251001-v1:0";
 
 const CORS_HEADERS = {
   "Access-Control-Allow-Origin": "*",
@@ -93,6 +93,16 @@ export const handler: APIGatewayProxyHandler = async (event) => {
   const responseLanguageName =
     ({ en: "English", hi: "Hindi", mr: "Marathi", ta: "Tamil", te: "Telugu" } as Record<string, string>)[lang] ?? "English";
 
+  // Language-specific recommendation examples
+  const exampleRecommendations: Record<string, string> = {
+    en: 'e.g. "You should avoid this product" / "use with caution" / "safe to use in moderation"',
+    hi: 'e.g. "आपको इस उत्पाद का उपयोग नहीं करना चाहिए" / "सावधानी से उपयोग करें" / "सीमित मात्रा में सुरक्षित"',
+    mr: 'e.g. "या उत्पादन टाळा" / "सावधानीने वापरा" / "माध्यमिक प्रमाणात सुरक्षित"',
+    ta: 'e.g. "இந்த பொருளைத் தவிர்க்களை" / "எச்சரிக்கையுடன் பயன்படுத்தவும்" / "நடுநிலையில் பயன்படுத்தலாம்"',
+    te: 'e.g. "ఈ ఉత్పత్తిని నివారించండి" / "జాగ్రత్తగా ఉపయోగించండి" / "మధ్యస్థ స్థాయిలో సురక్షితం"'
+  };
+  const exampleText = exampleRecommendations[lang] ?? exampleRecommendations.en;
+
   const instruction = hasImage
     ? "You are a label analyst for Indian consumers. (1) From the product label image, extract product name, manufacturer, serving size, nutrition facts (with units, e.g. per 100g or per serving), ingredients, allergens, and any health claims. (2) Read the user's question carefully—they may ask 'can I use this product?' or mention age, health conditions (e.g. diabetes, allergy, heart issue), or diet goals. (3) Give a direct recommendation: whether they should use the product, use with caution, or avoid it—and explain WHY using specific numbers and facts from the label (e.g. 'this has 21g sugar per 50g serving, which is too high for someone with diabetes'). Always cite label data to justify your answer. Respond with a valid JSON object only (no markdown, no code fence)."
     : "You are a food and cosmetics label analyst for Indian consumers (FSSAI-aware). Use the label text and user query below. Give a direct recommendation (use / use with caution / avoid) and explain why using specific data from the label. Respond with a valid JSON object only (no markdown, no code fence).";
@@ -113,8 +123,8 @@ Respond with this exact JSON structure only (no markdown, no code fence):
 }
 
 Rules for ai_response (write in ${responseLanguageName} only):
-- Directly answer the user's question with a clear recommendation: e.g. "आपको इस उत्पाद का उपयोग नहीं करना चाहिए" / "use with caution" / "safe to use in moderation".
-- MUST include specific data from the label to justify your answer: quote numbers (sugar, fat, sodium per serving or per 100g), serving size, allergens, or ingredients that support your recommendation. Example: "इसमें 21g चीनी प्रति 50g है, जो मधुमेह वालों के लिए अधिक है."
+- Directly answer the user's question with a clear recommendation: ${exampleText}.
+- MUST include specific data from the label to justify your answer: quote numbers (sugar, fat, sodium per serving or per 100g), serving size, allergens, or ingredients that support your recommendation. Always provide specific figures from the label.
 - If the user implies a health condition (diabetes, allergy, weight, age), tailor the answer: explain why the product is or isn’t suitable for that context using label facts.
 - Suggest consulting a doctor when relevant (e.g. existing condition or uncertainty). Keep 2–4 short paragraphs; no generic filler—every sentence should add information or justification from the label.
 Rules: Infer nutrition from the label; use 0 for missing values. For "other" in nutrition use 0–20 for residual only. Output only the JSON object.

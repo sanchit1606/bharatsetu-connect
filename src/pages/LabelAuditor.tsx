@@ -36,7 +36,7 @@ const MOCK_API_RESPONSE = {
         dietary_fiber: 25,
         sodium: 2300
     },
-    ai_response: "इस उत्पाद में सोडियम की मात्रा बहुत अधिक है — 890mg प्रति 100g, जो दैनिक सीमा का लगभग 39% है। आपकी उम्र 43 वर्ष है और आपको मधुमेह है, इसलिए इस उत्पाद का नियमित सेवन उचित नहीं है। इसमें refined carbohydrates और saturated fat भी अधिक हैं।",
+    ai_response: "This product is not recommended for you. It contains 890mg sodium per 100g, which is 39% of the daily limit—significant for someone with your age and diabetes condition. The refined carbohydrates (60g per 100g) and saturated fat (6.1g per 100g) are also high for a diabetic diet. I recommend avoiding regular consumption and consulting your doctor about suitable alternatives.",
     key_concerns: [
         { type: "warning", title: "High Sodium", detail: "890mg per 100g. Significantly high for hypertension-prone individuals." },
         { type: "warning", title: "Refined Carbs", detail: "60g carbs per 100g, mostly refined. Not suitable for diabetic diet." },

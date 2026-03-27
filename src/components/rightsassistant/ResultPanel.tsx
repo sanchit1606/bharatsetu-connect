@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { CheckCircle2, Copy, Volume2, VolumeX, Loader2 } from "lucide-react";
 import type { ExplanationResult, QaAnswer } from "@/lib/rightsAssistantApi";
 
@@ -26,17 +27,18 @@ export default function ResultPanel({
   isExplainTtsLoading = false,
   onListenExplanation,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <div className="space-y-4">
       <div className="card-elevated space-y-4 rounded-2xl bg-card p-5">
         <h3 className="font-display text-sm font-semibold text-foreground">
-          {tab === "document" ? "Document summary" : "Plain-language result"}
+          {tab === "document" ? t("rights_assistant_page.document_summary_heading", { defaultValue: "Document summary" }) : t("rights_assistant_page.plain_result_heading", { defaultValue: "Plain-language result" })}
         </h3>
 
         {tab === "document" && explanation ? (
           <>
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <span className="text-xs font-medium text-muted-foreground">In selected language, bullet points</span>
+              <span className="text-xs font-medium text-muted-foreground">{t("rights_assistant_page.result_format_note", { defaultValue: "In selected language, bullet points" })}</span>
               {onListenExplanation && (
                 <button
                   type="button"
@@ -45,7 +47,7 @@ export default function ResultPanel({
                   className="inline-flex items-center gap-1.5 rounded-lg bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary hover:bg-primary/20 disabled:opacity-50"
                 >
                   {isExplainTtsLoading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : isExplainSpeaking ? <VolumeX className="h-3.5 w-3.5" /> : <Volume2 className="h-3.5 w-3.5" />}
-                  {isExplainTtsLoading ? "Loading…" : isExplainSpeaking ? "Stop" : "Listen"}
+                  {isExplainTtsLoading ? t("rights_assistant_page.loading_label", { defaultValue: "Loading…" }) : isExplainSpeaking ? t("rights_assistant_page.stop_label", { defaultValue: "Stop" }) : t("rights_assistant_page.listen_label", { defaultValue: "Listen" })}
                 </button>
               )}
             </div>
@@ -67,7 +69,7 @@ export default function ResultPanel({
             {explanation.source && (
               <div className="flex flex-wrap items-center gap-2 border-t border-border pt-2">
                 <span className="rounded-full bg-primary/10 px-2.5 py-1 text-[11px] font-medium text-primary">
-                  Source: {explanation.source}
+                  {t("rights_assistant_page.source_label", { defaultValue: "Source" })}: {explanation.source}
                 </span>
                 <button
                   type="button"
@@ -76,8 +78,8 @@ export default function ResultPanel({
                       explanation.summary +
                         "\n\n" +
                         explanation.rights.join("\n") +
-                        (explanation.nextSteps.length ? "\n\nNext steps:\n" + explanation.nextSteps.join("\n") : "") +
-                        (explanation.source ? "\n\nSource: " + explanation.source : "")
+                        (explanation.nextSteps.length ? "\n\n" + t("rights_assistant_page.next_steps_label", { defaultValue: "Next steps" }) + ":\n" + explanation.nextSteps.join("\n") : "") +
+                        (explanation.source ? "\n\n" + t("rights_assistant_page.source_label", { defaultValue: "Source" }) + ": " + explanation.source : "")
                     )
                   }
                   className="inline-flex h-7 items-center gap-1.5 rounded-lg border border-border px-2.5 text-[11px] font-medium hover:bg-muted"
@@ -95,11 +97,11 @@ export default function ResultPanel({
             </p>
             <div className="flex flex-wrap items-center gap-2 border-t border-border pt-2">
               <span className="rounded-full bg-primary/10 px-2.5 py-1 text-[11px] font-medium text-primary">
-                Source: {qaAnswer.source}
+                {t("rights_assistant_page.source_label", { defaultValue: "Source" })}: {qaAnswer.source}
               </span>
               <button
                 type="button"
-                onClick={() => onCopy(qaAnswer.answer + "\n\nSource: " + qaAnswer.source)}
+                onClick={() => onCopy(qaAnswer.answer + "\n\n" + t("rights_assistant_page.source_label", { defaultValue: "Source" }) + ": " + qaAnswer.source)}
                 className="inline-flex h-7 items-center gap-1.5 rounded-lg border border-border px-2.5 text-[11px] font-medium hover:bg-muted"
               >
                 <Copy className="h-3.5 w-3.5" />
@@ -110,8 +112,8 @@ export default function ResultPanel({
         ) : (
           <p className="text-xs text-muted-foreground">
             {tab === "document"
-              ? 'Upload a document, run OCR, then click "Explain this document" to get a summary, your rights, and next steps.'
-              : 'Ask a question about your legal rights or government schemes and click "Get answer" for a plain-language response with source citation.'}
+              ? t("rights_assistant_page.no_document_result_hint", { defaultValue: "Upload a document, run OCR, then click \"Explain this document\" to get a summary, your rights, and next steps." })
+              : t("rights_assistant_page.no_question_result_hint", { defaultValue: "Ask a question about your legal rights or government schemes and click \"Get answer\" for a plain-language response with source citation." })}
           </p>
         )}
       </div>

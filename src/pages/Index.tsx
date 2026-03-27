@@ -227,7 +227,7 @@ const Index = () => {
         <section className="section-padding">
           <div className="container-content">
             <ScrollReveal className="text-center mb-12">
-              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-display font-bold text-foreground">Open. Responsible. <span className="hero-gradient-text">Fast.</span></h2>
+              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-display font-bold text-foreground">{t("technology.section_title_part1", { defaultValue: "Open. Responsible. " })}<span className="hero-gradient-text">{t("technology.section_title_highlight", { defaultValue: "Fast." })}</span></h2>
               <p className="mt-4 text-muted-foreground max-w-xl mx-auto">{t("technology.section_subtext")}</p>
             </ScrollReveal>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-6">

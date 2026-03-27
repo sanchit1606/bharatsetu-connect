@@ -117,16 +117,15 @@ const TTS_LOCALE: Record<string, string> = {
 const REPORT_LANG_OPTIONS: { value: string; label: string }[] = [
   { value: "en", label: "English" },
   { value: "hi", label: "Hindi" },
+  { value: "mr", label: "Marathi" },
+  { value: "ta", label: "Tamil" },
+  { value: "te", label: "Telugu" },
+  { value: "gu", label: "Gujarati" },
+  { value: "bn", label: "Bengali" },
+  { value: "kn", label: "Kannada" },
+  { value: "ml", label: "Malayalam" },
+  { value: "ur", label: "Urdu" },
 ];
-
-const REPORT_LANG_HEADINGS: Record<string, { chartHeading: string; tableHeading: string; suggestionsHeading: string; param: string; your_value: string; normal_range: string; status: string }> = {
-  en: { chartHeading: "Your values vs reference range", tableHeading: "Parameter comparison", suggestionsHeading: "Diet & lifestyle suggestions", param: "Parameter", your_value: "Your value", normal_range: "Normal range", status: "Status" },
-  hi: { chartHeading: "आपके मान बनाम संदर्भ सीमा", tableHeading: "पैरामीटर तुलना", suggestionsHeading: "आहार और जीवनशैली सुझाव", param: "पैरामीटर", your_value: "आपका मान", normal_range: "सामान्य सीमा", status: "स्थिति" },
-  mr: { chartHeading: "तुमची मूल्ये बनाम संदर्भ श्रेणी", tableHeading: "पॅरामीटर तुलना", suggestionsHeading: "आहार आणि जीवनशैली सूचना", param: "पॅरामीटर", your_value: "तुमचे मूल्य", normal_range: "सामान्य श्रेणी", status: "स्थिती" },
-  gu: { chartHeading: "તમારા મૂલ્યો વિરુદ્ધ સંદર્ભ શ્રેણી", tableHeading: "પેરામીટર તુલના", suggestionsHeading: "આહાર અને જીવનશૈલી સૂચનો", param: "પેરામીટર", your_value: "તમારું મૂલ્ય", normal_range: "સામાન્ય શ્રેણી", status: "સ્થિતિ" },
-  ta: { chartHeading: "உங்கள் மதிப்புகள் vs குறிப்பு வரம்பு", tableHeading: "அளவுரு ஒப்பீடு", suggestionsHeading: "உணவு மற்றும் வாழ்க்கை முறை பரிந்துரைகள்", param: "அளவுரு", your_value: "உங்கள் மதிப்பு", normal_range: "இயல்பான வரம்பு", status: "நிலை" },
-  te: { chartHeading: "మీ విలువలు vs సూచన పరిధి", tableHeading: "పారామీటర్ పోలిక", suggestionsHeading: "ఆహారం మరియు జీవనశైలి సూచనలు", param: "పారామీటర్", your_value: "మీ విలువ", normal_range: "సాధారణ పరిధి", status: "స్థితి" },
-};
 
 export default function LabReportAnalyzer() {
   const { t, i18n } = useTranslation();
@@ -518,14 +517,14 @@ export default function LabReportAnalyzer() {
                     />
                     {isPdf && (
                       <div className="absolute top-2 left-2 px-2 py-1 rounded bg-primary/90 text-primary-foreground text-xs font-medium flex items-center gap-1">
-                        <FileImage className="w-3 h-3" /> PDF (page 1)
+                        <FileImage className="w-3 h-3" /> {t("lab_report_page.pdf_page_badge", { defaultValue: "PDF (page 1)" })}
                       </div>
                     )}
                     <button
                       type="button"
                       onClick={removeFile}
                       className="absolute top-2 right-2 w-8 h-8 rounded-lg bg-background/90 border border-border flex items-center justify-center text-muted-foreground hover:text-foreground"
-                      aria-label="Remove"
+                      aria-label={t("lab_report_page.remove_button_label", { defaultValue: "Remove" })}
                     >
                       <X className="w-4 h-4" />
                     </button>
@@ -741,14 +740,13 @@ export default function LabReportAnalyzer() {
 
         {/* Full result: charts, table, suggestions (in report language) */}
         {result && (() => {
-          const headings = REPORT_LANG_HEADINGS[reportLang] ?? REPORT_LANG_HEADINGS.en;
           return (
           <div id="lab-report-output" className="mt-12 space-y-10">
             {chartData.length > 0 && (
               <ScrollReveal>
                 <h2 className="text-xl font-display font-bold text-foreground mb-4 flex items-center gap-2">
                   <TrendingUp className="w-5 h-5 text-primary" />
-                  {headings.chartHeading}
+                  {t("lab_report_page.chart_heading", { defaultValue: "Your values vs reference range" })}
                 </h2>
                 <div className="rounded-xl border border-border bg-card p-4 overflow-x-auto">
                   <div className="min-w-[500px] h-[380px]">
@@ -770,15 +768,15 @@ export default function LabReportAnalyzer() {
                             return (
                               <div className="bg-background border border-border rounded-lg shadow-lg p-3 text-sm">
                                 <p className="font-semibold">{d.fullName}</p>
-                                <p>{headings.your_value}: <strong>{d.value}</strong></p>
-                                <p>{headings.normal_range}: {d.refLow} – {d.refHigh}</p>
-                                <p className={statusColor(d.status)}>{headings.status}: {d.status}</p>
+                                <p>{t("lab_report_page.your_value_label", { defaultValue: "Your value" })}: <strong>{d.value}</strong></p>
+                                <p>{t("lab_report_page.normal_range_label", { defaultValue: "Normal range" })}: {d.refLow} – {d.refHigh}</p>
+                                <p className={statusColor(d.status)}>{t("lab_report_page.status_label", { defaultValue: "Status" })}: {d.status}</p>
                               </div>
                             );
                           }}
                         />
                         <ReferenceLine y={0} stroke="currentColor" strokeOpacity={0.3} />
-                        <Bar dataKey="value" radius={[4, 4, 0, 0]} name={headings.your_value}>
+                        <Bar dataKey="value" radius={[4, 4, 0, 0]} name={t("lab_report_page.your_value_label", { defaultValue: "Your value" })}>
                           {chartData.map((_, i) => (
                             <Cell key={i} fill={barColor(result.parameters[i]?.status ?? "normal")} />
                           ))}
@@ -793,17 +791,17 @@ export default function LabReportAnalyzer() {
             {result.parameters.length > 0 && (
               <ScrollReveal>
                 <h2 className="text-xl font-display font-bold text-foreground mb-4">
-                  {headings.tableHeading}
+                  {t("lab_report_page.table_heading", { defaultValue: "Parameter comparison" })}
                 </h2>
                 <div className="rounded-xl border border-border overflow-hidden">
                   <div className="overflow-x-auto">
                     <table className="w-full text-sm">
                       <thead>
                         <tr className="bg-muted/50 border-b border-border">
-                          <th className="text-left p-3 font-semibold text-foreground">{headings.param}</th>
-                          <th className="text-right p-3 font-semibold text-foreground">{headings.your_value}</th>
-                          <th className="text-right p-3 font-semibold text-foreground">{headings.normal_range}</th>
-                          <th className="text-center p-3 font-semibold text-foreground">{headings.status}</th>
+                          <th className="text-left p-3 font-semibold text-foreground">{t("lab_report_page.param_label", { defaultValue: "Parameter" })}</th>
+                          <th className="text-right p-3 font-semibold text-foreground">{t("lab_report_page.your_value_label", { defaultValue: "Your value" })}</th>
+                          <th className="text-right p-3 font-semibold text-foreground">{t("lab_report_page.normal_range_label", { defaultValue: "Normal range" })}</th>
+                          <th className="text-center p-3 font-semibold text-foreground">{t("lab_report_page.status_label", { defaultValue: "Status" })}</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -830,7 +828,7 @@ export default function LabReportAnalyzer() {
                   <div className="flex items-center justify-between gap-2 mb-4">
                     <h2 className="text-xl font-display font-bold text-foreground flex items-center gap-2">
                       <Apple className="w-5 h-5 text-primary" />
-                      {headings.suggestionsHeading}
+                      {t("lab_report_page.suggestions_heading", { defaultValue: "Diet & lifestyle suggestions" })}
                     </h2>
                     <button
                       type="button"

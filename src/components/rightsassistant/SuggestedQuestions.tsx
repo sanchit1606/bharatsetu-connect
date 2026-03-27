@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { SUGGESTED_QUESTIONS } from "@/lib/rightsAssistantApi";
 
 type Props = {
@@ -6,9 +7,10 @@ type Props = {
 };
 
 export default function SuggestedQuestions({ onSelect }: Props) {
+  const { t } = useTranslation();
   return (
     <div className="space-y-2">
-      <p className="text-xs font-medium text-muted-foreground">Try asking:</p>
+      <p className="text-xs font-medium text-muted-foreground">{t("rights_assistant_page.suggested_questions_label", { defaultValue: "Try asking:" })}</p>
       <div className="flex flex-wrap gap-2">
         {SUGGESTED_QUESTIONS.map((q, i) => (
           <button

@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { ArrowRight, Loader2, Mic, MicOff } from "lucide-react";
 import SuggestedQuestions from "./SuggestedQuestions";
 
@@ -21,17 +22,18 @@ export default function QuestionPanel({
   onToggleRecording,
   onSuggestedQuestion,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <div className="space-y-6">
       <h2 className="font-display text-lg font-semibold text-foreground">
-        Ask about your rights
+        {t("rights_assistant_page.ask_about_rights_heading", { defaultValue: "Ask about your rights" })}
       </h2>
 
       <div className="relative">
         <textarea
           value={questionText}
           onChange={(e) => onQuestionChange(e.target.value)}
-          placeholder="e.g. Can my landlord evict me without notice? What are my rights if I don't get PF?"
+          placeholder={t("rights_assistant_page.question_placeholder", { defaultValue: "e.g. Can my landlord evict me without notice? What are my rights if I don't get PF?" })}
           rows={5}
           className="w-full resize-none rounded-xl border border-border bg-background px-3 py-3 pr-24 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
         />
@@ -40,7 +42,7 @@ export default function QuestionPanel({
           onClick={onToggleRecording}
           disabled={isQuestionTranscribing}
           className="absolute right-3 bottom-3 inline-flex h-8 items-center gap-1.5 rounded-full border border-border bg-background/80 px-3 text-[11px] font-medium hover:bg-muted disabled:opacity-50"
-          title={isQuestionTranscribing ? "Transcribing…" : isRecording ? "Stop" : "Voice input (ElevenLabs when configured)"}
+          title={isQuestionTranscribing ? t("rights_assistant_page.transcribing_label", { defaultValue: "Transcribing…" }) : isRecording ? t("rights_assistant_page.stop_label", { defaultValue: "Stop" }) : t("rights_assistant_page.voice_input_title", { defaultValue: "Voice input (ElevenLabs when configured)" })}
         >
           {isQuestionTranscribing ? (
             <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -49,7 +51,7 @@ export default function QuestionPanel({
           ) : (
             <Mic className="h-3.5 w-3.5" />
           )}
-          {isQuestionTranscribing ? "…" : isRecording ? "Stop" : "Voice"}
+          {isQuestionTranscribing ? "…" : isRecording ? t("rights_assistant_page.stop_label", { defaultValue: "Stop" }) : t("rights_assistant_page.voice_label", { defaultValue: "Voice" })}
         </button>
       </div>
 
@@ -62,7 +64,7 @@ export default function QuestionPanel({
         className="btn-press inline-flex h-11 w-full items-center justify-center gap-2 rounded-xl text-sm font-semibold hero-gradient-bg text-primary-foreground disabled:cursor-not-allowed disabled:opacity-50"
       >
         <ArrowRight className="h-4 w-4" />
-        Get answer
+        {t("rights_assistant_page.get_answer_button", { defaultValue: "Get answer" })}
       </button>
     </div>
   );

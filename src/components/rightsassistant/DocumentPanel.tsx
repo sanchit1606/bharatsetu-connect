@@ -1,4 +1,5 @@
 import React, { useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { FileText, Upload, X, Loader2, ArrowRight, Image as ImageIcon, Scan, Mic, MicOff } from "lucide-react";
 
 type Props = {
@@ -42,13 +43,14 @@ export default function DocumentPanel({
   onToggleDocumentRecording,
   hasVoiceInput,
 }: Props) {
+  const { t } = useTranslation();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     if (file.size > 10 * 1024 * 1024) {
-      alert("Please upload a file smaller than 10MB.");
+      alert(t("rights_assistant_page.file_size_error", { defaultValue: "Please upload a file smaller than 10MB." }));
       return;
     }
     onFileChange(file);
@@ -65,7 +67,7 @@ export default function DocumentPanel({
   return (
     <div className="space-y-4">
       <h2 className="font-display text-lg font-semibold text-foreground">
-        Document & details
+        {t("rights_assistant_page.document_details_heading", { defaultValue: "Document & details" })}
       </h2>
 
       {/* Upload area — Lab Report style */}
@@ -73,9 +75,9 @@ export default function DocumentPanel({
         <label className="flex flex-col items-center justify-center w-full min-h-[120px] border-2 border-dashed border-border rounded-xl cursor-pointer bg-muted/30 hover:bg-muted/50 hover:border-primary/40 transition-colors px-4 py-5">
           <Upload className="w-8 h-8 text-muted-foreground mb-2" />
           <span className="text-sm text-muted-foreground text-center">
-            Drop image or PDF here, or click to browse
+            {t("rights_assistant_page.upload_drop_text", { defaultValue: "Drop image or PDF here, or click to browse" })}
           </span>
-          <span className="text-xs text-muted-foreground mt-1">Image, PDF, DOC/DOCX</span>
+          <span className="text-xs text-muted-foreground mt-1">{t("rights_assistant_page.upload_file_types", { defaultValue: "Image, PDF, DOC/DOCX" })}</span>
           <input
             ref={fileInputRef}
             type="file"
@@ -134,7 +136,7 @@ export default function DocumentPanel({
               className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 text-sm font-medium disabled:opacity-50 transition-colors"
             >
               {isOcrLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Scan className="w-4 h-4" />}
-              {isOcrLoading ? "Running OCR…" : "Run OCR"}
+              {isOcrLoading ? t("rights_assistant_page.ocr_running", { defaultValue: "Running OCR…" }) : t("rights_assistant_page.run_ocr_button", { defaultValue: "Run OCR" })}
             </button>
           </div>
         </div>
@@ -142,7 +144,7 @@ export default function DocumentPanel({
 
       {/* Language dropdown */}
       <div className="space-y-2">
-        <label className="block text-sm font-medium text-foreground">Simplify document in</label>
+        <label className="block text-sm font-medium text-foreground">{t("rights_assistant_page.simplify_language_label", { defaultValue: "Simplify document in" })}</label>
         <select
           value={outputLanguage}
           onChange={(e) => onOutputLanguageChange(e.target.value)}
@@ -156,13 +158,13 @@ export default function DocumentPanel({
 
       {/* User query: type or speak */}
       <div className="space-y-2">
-        <label className="block text-sm font-medium text-foreground">Your query (optional)</label>
-        <p className="text-xs text-muted-foreground">Ask something about the document; the summary will use the document and your question.</p>
+        <label className="block text-sm font-medium text-foreground">{t("rights_assistant_page.query_label", { defaultValue: "Your query (optional)" })}</label>
+        <p className="text-xs text-muted-foreground">{t("rights_assistant_page.query_hint", { defaultValue: "Ask something about the document; the summary will use the document and your question." })}</p>
         <div className="relative">
           <textarea
             value={documentQuery}
             onChange={(e) => onDocumentQueryChange(e.target.value)}
-            placeholder="e.g. What are my main obligations? Is there a notice period?"
+            placeholder={t("rights_assistant_page.query_placeholder", { defaultValue: "e.g. What are my main obligations? Is there a notice period?" })}
             rows={4}
             className="w-full resize-none rounded-xl border border-border bg-background px-3 py-3 pr-12 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
           />
@@ -172,10 +174,10 @@ export default function DocumentPanel({
               onClick={onToggleDocumentRecording}
               disabled={isDocumentTranscribing}
               className="absolute right-3 bottom-3 inline-flex h-8 items-center gap-1.5 rounded-full border border-border bg-background/80 px-3 text-[11px] font-medium hover:bg-muted disabled:opacity-50"
-              title={isDocumentTranscribing ? "Transcribing…" : isDocumentRecording ? "Stop" : "Voice input (ElevenLabs when configured)"}
+              title={isDocumentTranscribing ? t("rights_assistant_page.transcribing_label", { defaultValue: "Transcribing…" }) : isDocumentRecording ? t("rights_assistant_page.stop_label", { defaultValue: "Stop" }) : t("rights_assistant_page.voice_input_title", { defaultValue: "Voice input (ElevenLabs when configured)" })}
             >
               {isDocumentTranscribing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : isDocumentRecording ? <MicOff className="h-3.5 w-3.5" /> : <Mic className="h-3.5 w-3.5" />}
-              {isDocumentTranscribing ? "…" : isDocumentRecording ? "Stop" : "Voice"}
+              {isDocumentTranscribing ? "…" : isDocumentRecording ? t("rights_assistant_page.stop_label", { defaultValue: "Stop" }) : t("rights_assistant_page.voice_label", { defaultValue: "Voice" })}
             </button>
           )}
         </div>
@@ -192,7 +194,7 @@ export default function DocumentPanel({
         ) : (
           <ArrowRight className="h-4 w-4" />
         )}
-        {isExplainLoading ? "Explaining…" : "Explain this document"}
+        {isExplainLoading ? t("rights_assistant_page.explaining_label", { defaultValue: "Explaining…" }) : t("rights_assistant_page.explain_document_button", { defaultValue: "Explain this document" })}
       </button>
     </div>
   );

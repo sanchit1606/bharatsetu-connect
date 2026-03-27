@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Flower2, MessageCircle, LayoutGrid, BookOpen } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { generateSessionId } from "@/utils/gynaecareFormatters";
 import type { AgeGroup } from "@/utils/ageFilter";
 import type { GynaeLanguage } from "@/utils/gynaecareFormatters";
@@ -14,6 +15,7 @@ import ScrollReveal from "@/components/ScrollReveal";
 type ActiveView = "chat" | "modules" | "resources";
 
 export default function GynaeCare() {
+  const { t } = useTranslation();
   const [hasAcceptedTerms, setHasAcceptedTerms] = useState(false);
   const [ageGroup, setAgeGroup] = useState<AgeGroup | null>(null);
   const [language, setLanguage] = useState<GynaeLanguage>("en");
@@ -57,8 +59,6 @@ export default function GynaeCare() {
     );
   }
 
-  const isEn = language === "en";
-
   return (
     <div className="min-h-screen pt-16">
       {/* Hero */}
@@ -67,15 +67,13 @@ export default function GynaeCare() {
           <ScrollReveal>
             <span className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1.5 text-xs font-semibold text-primary">
               <Flower2 className="h-4 w-4" />
-              Feature 05 — GynaeCare
+              {t("gynaecare_page.hero_badge", { defaultValue: "Feature 05 — GynaeCare" })}
             </span>
             <h1 className="mt-4 text-3xl font-display font-bold text-foreground sm:text-4xl">
-              Women&apos;s health. <span className="hero-gradient-text">Answered.</span> Without judgment.
+              {t("gynaecare_page.hero_headline_part1", { defaultValue: "Women's Health." })} <span className="hero-gradient-text">{t("gynaecare_page.hero_gradient_text", { defaultValue: "Answered." })}</span> {t("gynaecare_page.hero_headline_part2", { defaultValue: "Without Judgment." })}
             </h1>
             <p className="mt-2 max-w-xl text-sm text-muted-foreground">
-              {isEn
-                ? "Anonymous, stigma-free chatbot for menstrual health, PCOS, pregnancy basics, and wellness. Sourced from WHO, UNICEF, NHS. No account. No data stored."
-                : "मासिक धर्म स्वास्थ्य, PCOS, गर्भावस्था और कल्याण के लिए गुमनाम चैटबॉट। WHO, UNICEF, NHS से। कोई अकाउंट नहीं। कोई डेटा संग्रहीत नहीं।"}
+              {t("gynaecare_page.hero_subtitle", { defaultValue: "A completely anonymous, stigma-free chatbot for women's health questions. Ask about menstrual cycles, PCOS, pregnancy, or general wellness. 100% confidential." })}
             </p>
           </ScrollReveal>
         </div>
@@ -97,7 +95,7 @@ export default function GynaeCare() {
               }`}
             >
               <MessageCircle className="h-4 w-4" />
-              {isEn ? "Chat" : "चैट"}
+              {t("gynaecare_page.tab_chat_label", { defaultValue: "Chat" })}
             </button>
             <button
               type="button"
@@ -107,7 +105,7 @@ export default function GynaeCare() {
               }`}
             >
               <LayoutGrid className="h-4 w-4" />
-              {isEn ? "Interactive Tools" : "इंटरएक्टिव टूल"}
+              {t("gynaecare_page.tab_modules_label", { defaultValue: "Health Modules" })}
             </button>
             <button
               type="button"
@@ -117,7 +115,7 @@ export default function GynaeCare() {
               }`}
             >
               <BookOpen className="h-4 w-4" />
-              {isEn ? "Resources" : "संसाधन"}
+              {t("gynaecare_page.tab_resources_label", { defaultValue: "Resources" })}
             </button>
           </div>
           <div className="flex items-center gap-2">
@@ -133,7 +131,7 @@ export default function GynaeCare() {
               onClick={handleNewSession}
               className="rounded-lg border border-border px-3 py-1.5 text-xs font-medium hover:bg-muted"
             >
-              {isEn ? "New Session" : "नया सत्र"}
+              {t("gynaecare_page.new_session_label", { defaultValue: "New Session" })}
             </button>
           </div>
         </div>
@@ -161,9 +159,7 @@ export default function GynaeCare() {
         </div>
 
         <footer className="mt-6 rounded-xl border border-border bg-muted/30 px-4 py-3 text-center text-xs text-muted-foreground">
-          {isEn
-            ? "Emergency? Call 108 (Medical) | 181 (Women's Helpline) | 1860-2662-345 (Mental Health)"
-            : "आपातकाल? 108 (चिकित्सा) | 181 (महिला हेल्पलाइन) | 1860-2662-345 (मानसिक स्वास्थ्य)"}
+          {t("gynaecare_page.footer_emergency_heading", { defaultValue: "Emergency Helplines" })}: {t("gynaecare_page.footer_emergency_108", { defaultValue: "Medical Emergency: 108" })} | {t("gynaecare_page.footer_emergency_181", { defaultValue: "Women's Helpline: 1800-233-3434" })} | {t("gynaecare_page.footer_emergency_mh", { defaultValue: "Mental Health: 1860-2662-345" })}
         </footer>
       </div>
     </div>
